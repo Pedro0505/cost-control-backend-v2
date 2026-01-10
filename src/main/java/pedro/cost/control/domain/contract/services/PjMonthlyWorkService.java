@@ -2,17 +2,18 @@ package pedro.cost.control.domain.contract.services;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import pedro.cost.control.common.LegacyPageResponse;
-import pedro.cost.control.domain.contract.dtos.PjMonthlyContractOutputDTO;
-import pedro.cost.control.domain.contract.dtos.PjMonthlyWorkInputCreateDTO;
+import pedro.cost.control.config.exceptions.ConflictException;
+
+import pedro.cost.control.config.exceptions.NotFoundException;
 import pedro.cost.control.domain.contract.entities.EmploymentContract;
 import pedro.cost.control.domain.contract.entities.PjMonthlyWork;
 import pedro.cost.control.domain.contract.repositories.PjMonthlyWorkRepository;
+import pedro.cost.control.domain.income.entities.Income;
 
-import java.util.List;
+import java.time.LocalDate;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,20 +25,34 @@ public class PjMonthlyWorkService {
         pjMonthlyWorkRepository.save(pjMonthlyWork);
     }
 
+    public void delete(Long id) {
+        PjMonthlyWork pjMonthlyWork = findById(id);
+
+        pjMonthlyWorkRepository.delete(pjMonthlyWork);
+    }
+
+    public void delete(PjMonthlyWork pjMonthlyWork) {
+        pjMonthlyWorkRepository.delete(pjMonthlyWork);
+    }
+
     @Transactional
-    public void createPjMonthlyWork(PjMonthlyWorkInputCreateDTO pjMonthlyWorkInputCreate) {
-        Integer referenceYear = pjMonthlyWorkInputCreate.getReferenceYear();
-        Integer referenceMonth = pjMonthlyWorkInputCreate.getReferenceMonth();
+    public void createPjMonthlyWork(LocalDate referenceDate, Integer businessDays) {
+        Integer referenceYear = referenceDate.getYear();
+        Integer referenceMonth = referenceDate.getMonthValue();
+
+        validateOverlap(referenceYear, referenceMonth);
 
         EmploymentContract employmentContract  = employmentContractPjService.getEmploymentContractByYearAndMonth(
                 referenceYear, referenceMonth
         );
 
-        PjMonthlyWork pjMonthlyWork = createPjMonthlyWorkObject(
-                referenceYear, referenceMonth, pjMonthlyWorkInputCreate.getBusinessDays(), employmentContract
-        );
+        PjMonthlyWork pjMonthlyWork = createPjMonthlyWorkObject(referenceYear, referenceMonth, businessDays, employmentContract);
 
         save(pjMonthlyWork);
+    }
+
+    public Optional<PjMonthlyWork> getPjMonthlyWorkLinkedWithIncomeId(Long incomeId) {
+        return pjMonthlyWorkRepository.findPjMonthlyWorkLinkedWithIncomeId(incomeId);
     }
 
     private PjMonthlyWork createPjMonthlyWorkObject(
@@ -53,26 +68,21 @@ public class PjMonthlyWorkService {
         return pjMonthlyWork;
     }
 
-    public LegacyPageResponse<PjMonthlyContractOutputDTO> getAllPjMonthlyWithContract(PageRequest pageable) {
-        Page<PjMonthlyContractOutputDTO> pageResult = pjMonthlyWorkRepository.getAllPjMonthlyWithContractPageable(pageable);
+    private void validateOverlap(Integer referenceYear, Integer referenceMonth) {
+        Optional<PjMonthlyWork> optionalPjMonthlyWork = pjMonthlyWorkRepository.findByYearAndMonth(referenceYear, referenceMonth);
 
-        return new LegacyPageResponse<>(
-                pageResult.getContent(),
-                pageResult.getPageable(),
-                pageResult.getTotalPages(),
-                pageResult.getTotalElements(),
-                pageResult.isLast(),
-                pageResult.isFirst(),
-                pageResult.getSize(),
-                pageResult.getNumber(),
-                pageResult.getSort(),
-                pageResult.getNumberOfElements(),
-                pageResult.isEmpty()
-        );
+        if (optionalPjMonthlyWork.isPresent()) {
+            throw new ConflictException("Já existe horas cadastradas para esse mês e ano");
+        }
     }
 
+    public PjMonthlyWork findById(Long id) {
+        Optional<PjMonthlyWork> optionalIncome = pjMonthlyWorkRepository.findById(id);
 
-    public List<PjMonthlyContractOutputDTO> getAllPjMonthlyWithContractFiltered(Integer year) {
-        return pjMonthlyWorkRepository.getAllPjMonthlyWithContractFiltered(year);
+        if (optionalIncome.isEmpty()) {
+            throw new NotFoundException("Horas PJ não encontradas");
+        }
+
+        return optionalIncome.get();
     }
 }

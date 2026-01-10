@@ -18,4 +18,5 @@ public class IncomeInputCreateDTO {
     private BigDecimal amount;
     private String description;
     private LocalDate referenceDate;
+    private Integer businessDays;
 }

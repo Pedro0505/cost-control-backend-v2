@@ -14,14 +14,12 @@ public class ContractSummaryDTO {
     private Long id;
     private String contractType;
     private BigDecimal hourlyRate;
-    private Integer businessDays;
     private BigDecimal netSalary;
     private EmploymentContract employmentContract;
 
-    public ContractSummaryDTO(Long id, String contractType, BigDecimal hourlyRate, Integer businessDays, BigDecimal netSalary, EmploymentContract employmentContract) {
+    public ContractSummaryDTO(Long id, String contractType, BigDecimal hourlyRate, BigDecimal netSalary, EmploymentContract employmentContract) {
         this.id = id;
         this.contractType = contractType;
-        this.businessDays = businessDays;
         this.hourlyRate = hourlyRate;
         this.netSalary = netSalary;
         this.employmentContract = employmentContract;

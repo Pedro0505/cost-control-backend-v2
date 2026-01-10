@@ -47,7 +47,7 @@ public class MonthlyBalanceService {
                 .collect(Collectors.groupingBy(MonthlyBalance::getReferenceYear))
                 .entrySet()
                 .stream()
-                .map((e) -> new AvailableBalanceYearMonth(e.getKey(), e.getValue().stream().map(j -> new MonthInfo(j.getReferenceMonth())).toList()))
+                .map(e -> new AvailableBalanceYearMonth(e.getKey(), e.getValue().stream().map(j -> new MonthInfo(j.getReferenceMonth())).toList()))
                 .toList();
     }
 }

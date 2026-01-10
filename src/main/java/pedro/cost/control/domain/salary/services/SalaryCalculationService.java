@@ -17,22 +17,22 @@ public class SalaryCalculationService {
 
     private final SalaryCalculationStrategyResolver resolver;
 
-    public BigDecimal calculateSalary(ContractSummaryDTO contractSummary) {
+    public BigDecimal calculateSalary(ContractSummaryDTO contractSummary, Integer businessDays) {
 
         ContractType contractType = ContractType.getByName(contractSummary.getContractType());
 
-        SalaryCalculationContext context = buildContext(contractSummary);
+        SalaryCalculationContext context = buildContext(contractSummary, businessDays);
 
         SalaryCalculationStrategy calculator = resolver.getCalculator(contractType);
 
         return calculator.calculate(context);
     }
 
-    private SalaryCalculationContext buildContext(ContractSummaryDTO contractSummary) {
+    private SalaryCalculationContext buildContext(ContractSummaryDTO contractSummary, Integer businessDays) {
         return new SalaryCalculationContext(
                 contractSummary.getNetSalary(),
                 contractSummary.getHourlyRate(),
-                contractSummary.getBusinessDays(),
+                businessDays,
                 DEFAULT_HOURS_PER_DAY
         );
     }

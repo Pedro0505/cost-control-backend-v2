@@ -13,6 +13,7 @@ import pedro.cost.control.domain.cost.calculate.services.CostCalculationService;
 import pedro.cost.control.domain.cost.dtos.CostOutputDTO;
 import pedro.cost.control.domain.cost.dtos.CostSummaryOutputDTO;
 import pedro.cost.control.domain.cost.dtos.CreateCostInputDTO;
+import pedro.cost.control.domain.cost.dtos.ImportCostRecurrentInputDTO;
 import pedro.cost.control.domain.cost.dtos.UpdateCostInputDTO;
 import pedro.cost.control.domain.cost.entities.Cost;
 import pedro.cost.control.domain.cost.mappers.CostMapper;
@@ -36,7 +37,7 @@ public class CostService {
         Integer referenceYear = createCostInputDTO.getReferenceYear();
         Integer referenceMonth = createCostInputDTO.getReferenceMonth();
 
-        MonthlyBalance monthlyBalance = getMonthlyBalanceByCost(createCostInputDTO);
+        MonthlyBalance monthlyBalance = getMonthlyBalanceByCost(referenceYear, referenceMonth);
         BigDecimal calculatedAmount = costCalculationService.calculateAmount(createCostInputDTO);
         Cost newCostObject = createCostObject(createCostInputDTO, calculatedAmount, monthlyBalance);
 
@@ -85,19 +86,37 @@ public class CostService {
         return costRepository.findAllCostByYearMonth(year, month);
     }
 
+    public void importRecurrentCosts(ImportCostRecurrentInputDTO importCostRecurrentInputDTO) {
+        List<Cost> sourceRecurrentCost = costRepository.findAllRecurrentCostByYearMonth(
+          importCostRecurrentInputDTO.getSourceReferenceYear(), importCostRecurrentInputDTO.getSourceReferenceMonth()
+        );
+
+        MonthlyBalance targetMonthlyBalance = getMonthlyBalanceByCost(
+                importCostRecurrentInputDTO.getTargetReferenceYear(), importCostRecurrentInputDTO.getTargetReferenceMonth()
+        );
+
+        List<Cost> newCosts = createNewCosts(sourceRecurrentCost, targetMonthlyBalance);
+
+        saveAll(newCosts);
+    }
+
+    public void saveAll(List<Cost> costs) {
+        costRepository.saveAll(costs);
+    }
+
     private BalanceSummaryOutputDTO getBalanceSummary(Integer referenceYear, Integer referenceMonth) {
         List<CostOutputDTO> updatedCosts = getAllCostByYearMonth(referenceYear, referenceMonth);
 
         return financialBalanceService.calculateFinancialSummaryByMonth(updatedCosts, referenceYear, referenceMonth);
     }
 
-    private MonthlyBalance getMonthlyBalanceByCost(CreateCostInputDTO createCostInputDTO) {
+    private MonthlyBalance getMonthlyBalanceByCost(Integer referenceYear, Integer referenceMonth) {
         Optional<MonthlyBalance> monthlyBalanceOptional = monthlyBalanceService.getMonthlyBalanceByYearAndMonth(
-                createCostInputDTO.getReferenceYear(), createCostInputDTO.getReferenceMonth()
+                referenceYear, referenceMonth
         );
 
         return monthlyBalanceOptional.orElseThrow(() -> new NotFoundException(
-                "Não foi encontrado o mês " + createCostInputDTO.getReferenceMonth() + " e ano " + createCostInputDTO.getReferenceYear()
+                "Não foi encontrado o mês " + referenceMonth + " e ano " + referenceYear
         ));
     }
 
@@ -111,6 +130,22 @@ public class CostService {
                 .monthlyBalance(monthlyBalance)
                 .paid(createCostInputDTO.getPaid())
                 .build();
+    }
+
+    private List<Cost> createNewCosts(List<Cost> costs, MonthlyBalance monthlyBalance) {
+        return costs
+                .stream()
+                .map(e -> Cost.builder()
+                        .amount(e.getAmount())
+                        .percentage(e.getPercentage())
+                        .calculationType(e.getCalculationType())
+                        .description(e.getDescription())
+                        .recurrent(e.getRecurrent())
+                        .monthlyBalance(monthlyBalance)
+                        .paid(e.getPaid())
+                        .build()
+                )
+                .toList();
     }
 
     private CostSummaryOutputDTO appendMoneySummary(Cost createdCost, Integer referenceYear, Integer referenceMonth) {

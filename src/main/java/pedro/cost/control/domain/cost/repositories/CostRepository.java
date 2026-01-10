@@ -22,4 +22,11 @@ public interface CostRepository extends JpaRepository<Cost, Long> {
             WHERE c.monthlyBalance.referenceMonth = :month AND c.monthlyBalance.referenceYear = :year
             """)
     List<CostOutputDTO> findAllCostByYearMonth(@Param("year") Integer year, @Param("month") Integer month);
+
+    @Query(value = """
+            SELECT c FROM Cost c
+            WHERE c.monthlyBalance.referenceMonth = :month AND c.monthlyBalance.referenceYear = :year
+            AND c.recurrent IS TRUE
+            """)
+    List<Cost> findAllRecurrentCostByYearMonth(@Param("year") Integer year, @Param("month") Integer month);
 }

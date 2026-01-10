@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import pedro.cost.control.domain.cost.dtos.CostOutputDTO;
 import pedro.cost.control.domain.cost.dtos.CostSummaryOutputDTO;
 import pedro.cost.control.domain.cost.dtos.CreateCostInputDTO;
+import pedro.cost.control.domain.cost.dtos.ImportCostRecurrentInputDTO;
 import pedro.cost.control.domain.cost.dtos.UpdateCostInputDTO;
 import pedro.cost.control.domain.cost.services.CostService;
 
@@ -52,5 +53,12 @@ public class CostController {
         CostSummaryOutputDTO costUpdated = costService.update(id, updateCostInputDTO);
 
         return ResponseEntity.ok(costUpdated);
+    }
+
+    @PostMapping("/import-recurrent")
+    public ResponseEntity<Void> importRecurrentCosts(@RequestBody ImportCostRecurrentInputDTO importCostRecurrentInputDTO) {
+        costService.importRecurrentCosts(importCostRecurrentInputDTO);
+
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

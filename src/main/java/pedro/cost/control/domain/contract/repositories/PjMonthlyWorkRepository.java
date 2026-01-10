@@ -10,6 +10,7 @@ import pedro.cost.control.domain.contract.entities.PjMonthlyWork;
 import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PjMonthlyWorkRepository extends JpaRepository<PjMonthlyWork, Long> {
@@ -37,4 +38,17 @@ public interface PjMonthlyWorkRepository extends JpaRepository<PjMonthlyWork, Lo
         WHERE (:year IS NULL OR :year = pjw.referenceYear)
     """)
     List<PjMonthlyContractOutputDTO> getAllPjMonthlyWithContractFiltered(@Param("year") Integer year);
+
+    @Query("""
+        SELECT pmw FROM PjMonthlyWork pmw
+        WHERE pmw.referenceMonth = :month AND pmw.referenceYear = :year
+    """)
+    Optional<PjMonthlyWork> findByYearAndMonth(@Param("year") Integer year, @Param("month") Integer month);
+
+    @Query("""
+        SELECT pmw FROM Income i
+        JOIN PjMonthlyWork pmw ON pmw.referenceMonth = i.monthlyBalance.referenceMonth
+        AND pmw.referenceYear = i.monthlyBalance.referenceYear
+    """)
+    Optional<PjMonthlyWork> findPjMonthlyWorkLinkedWithIncomeId(@Param("incomeId") Long incomeId);
 }
