@@ -5,11 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pedro.cost.control.config.exceptions.ConflictException;
 
-import pedro.cost.control.config.exceptions.NotFoundException;
 import pedro.cost.control.domain.contract.entities.EmploymentContract;
 import pedro.cost.control.domain.contract.entities.PjMonthlyWork;
 import pedro.cost.control.domain.contract.repositories.PjMonthlyWorkRepository;
-import pedro.cost.control.domain.income.entities.Income;
 
 import java.time.LocalDate;
 
@@ -20,20 +18,6 @@ import java.util.Optional;
 public class PjMonthlyWorkService {
     private final PjMonthlyWorkRepository pjMonthlyWorkRepository;
     private final EmploymentContractPjService employmentContractPjService;
-
-    public void save(PjMonthlyWork pjMonthlyWork) {
-        pjMonthlyWorkRepository.save(pjMonthlyWork);
-    }
-
-    public void delete(Long id) {
-        PjMonthlyWork pjMonthlyWork = findById(id);
-
-        pjMonthlyWorkRepository.delete(pjMonthlyWork);
-    }
-
-    public void delete(PjMonthlyWork pjMonthlyWork) {
-        pjMonthlyWorkRepository.delete(pjMonthlyWork);
-    }
 
     @Transactional
     public void createPjMonthlyWork(LocalDate referenceDate, Integer businessDays) {
@@ -51,8 +35,16 @@ public class PjMonthlyWorkService {
         save(pjMonthlyWork);
     }
 
+    public void save(PjMonthlyWork pjMonthlyWork) {
+        pjMonthlyWorkRepository.save(pjMonthlyWork);
+    }
+
     public Optional<PjMonthlyWork> getPjMonthlyWorkLinkedWithIncomeId(Long incomeId) {
         return pjMonthlyWorkRepository.findPjMonthlyWorkLinkedWithIncomeId(incomeId);
+    }
+
+    public void delete(PjMonthlyWork pjMonthlyWork) {
+        pjMonthlyWorkRepository.delete(pjMonthlyWork);
     }
 
     private PjMonthlyWork createPjMonthlyWorkObject(
@@ -74,15 +66,5 @@ public class PjMonthlyWorkService {
         if (optionalPjMonthlyWork.isPresent()) {
             throw new ConflictException("Já existe horas cadastradas para esse mês e ano");
         }
-    }
-
-    public PjMonthlyWork findById(Long id) {
-        Optional<PjMonthlyWork> optionalIncome = pjMonthlyWorkRepository.findById(id);
-
-        if (optionalIncome.isEmpty()) {
-            throw new NotFoundException("Horas PJ não encontradas");
-        }
-
-        return optionalIncome.get();
     }
 }

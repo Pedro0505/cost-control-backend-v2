@@ -25,10 +25,6 @@ public class EmploymentContractPjService {
         return employmentContractPj;
     }
 
-    public void save(EmploymentContractPj employmentContractPj) {
-        employmentContractPjRepository.save(employmentContractPj);
-    }
-
     public EmploymentContract getEmploymentContractByYearAndMonth(Integer year, Integer month) {
         return employmentContractPjRepository.findEmploymentContractByYearAndMonth(year, month);
     }
@@ -39,5 +35,9 @@ public class EmploymentContractPjService {
 
     public Optional<EmploymentContractPj> getEmploymentContractOpenedByContractType() {
         return employmentContractPjRepository.findEmploymentContractOpenedByContractType();
+    }
+
+    public void save(EmploymentContractPj employmentContractPj) {
+        employmentContractPjRepository.save(employmentContractPj);
     }
 }

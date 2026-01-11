@@ -51,19 +51,7 @@ public class EmploymentContractService {
     public LegacyPageResponse<EmploymentContractOutputDTO> getAllContractsPaged(PageRequest pageable) {
         Page<EmploymentContractOutputDTO> employmentContract = employmentContractRepository.getAllContractsPaged(pageable);
 
-        return new LegacyPageResponse<>(
-                employmentContract.getContent(),
-                employmentContract.getPageable(),
-                employmentContract.getTotalPages(),
-                employmentContract.getTotalElements(),
-                employmentContract.isLast(),
-                employmentContract.isFirst(),
-                employmentContract.getSize(),
-                employmentContract.getNumber(),
-                employmentContract.getSort(),
-                employmentContract.getNumberOfElements(),
-                employmentContract.isEmpty()
-        );
+        return new LegacyPageResponse<>(employmentContract);
     }
 
     private void validateIfHasContractOverlap(LocalDate initDate, LocalDate endDate) {
