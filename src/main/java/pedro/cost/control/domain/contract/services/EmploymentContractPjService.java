@@ -7,9 +7,6 @@ import pedro.cost.control.domain.contract.entities.EmploymentContract;
 import pedro.cost.control.domain.contract.entities.EmploymentContractPj;
 import pedro.cost.control.domain.contract.repositories.EmploymentContractPjRepository;
 
-import java.time.LocalDate;
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class EmploymentContractPjService {
@@ -27,17 +24,5 @@ public class EmploymentContractPjService {
 
     public EmploymentContract getEmploymentContractByYearAndMonth(Integer year, Integer month) {
         return employmentContractPjRepository.findEmploymentContractByYearAndMonth(year, month);
-    }
-
-    public Optional<EmploymentContractPj> getEmploymentContractOverlap(LocalDate initDate, LocalDate endDate) {
-        return employmentContractPjRepository.findContractPjOverlap(initDate, endDate);
-    }
-
-    public Optional<EmploymentContractPj> getEmploymentContractOpenedByContractType() {
-        return employmentContractPjRepository.findEmploymentContractOpenedByContractType();
-    }
-
-    public void save(EmploymentContractPj employmentContractPj) {
-        employmentContractPjRepository.save(employmentContractPj);
     }
 }

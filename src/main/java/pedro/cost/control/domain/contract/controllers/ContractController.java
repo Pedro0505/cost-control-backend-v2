@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pedro.cost.control.common.LegacyPageResponse;
+import pedro.cost.control.domain.contract.dtos.CltContractInputCreateDTO;
 import pedro.cost.control.domain.contract.dtos.EmploymentContractOutputDTO;
 import pedro.cost.control.domain.contract.dtos.PjContractInputCreateDTO;
 import pedro.cost.control.domain.contract.services.EmploymentContractService;
@@ -35,6 +36,13 @@ public class ContractController {
     @PostMapping("/employment/pj")
     public ResponseEntity<Void> addNewPjContract(@RequestBody PjContractInputCreateDTO pjContractInputCreateDTO) {
         employmentContractService.addNewPjContract(pjContractInputCreateDTO);
+
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PostMapping("/employment/clt")
+    public ResponseEntity<Void> addNewCltContract(@RequestBody CltContractInputCreateDTO cltContractInputCreateDTO) {
+        employmentContractService.addNewCltContract(cltContractInputCreateDTO);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
