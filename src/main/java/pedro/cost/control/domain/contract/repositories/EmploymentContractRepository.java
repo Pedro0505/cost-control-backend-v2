@@ -20,7 +20,7 @@ public interface EmploymentContractRepository extends JpaRepository<EmploymentCo
             ec.id,
             ec.contractType,
             TREAT(ec AS EmploymentContractPj).hourlyRate,
-            TREAT(ec AS EmploymentContractClt).grossSalary,
+            TREAT(ec AS EmploymentContractClt).netSalary,
             ec
         )
         FROM EmploymentContract ec
@@ -43,4 +43,25 @@ public interface EmploymentContractRepository extends JpaRepository<EmploymentCo
         LEFT JOIN EmploymentContractClt clt ON clt.id = ec.id
     """)
     Page<EmploymentContractOutputDTO> getAllContractsPaged(PageRequest pageable);
+
+    @Query("""
+        SELECT ec
+        FROM EmploymentContract ec
+        WHERE TYPE(ec) = EmploymentContractPj
+        AND (
+            :initDate BETWEEN ec.initDate AND COALESCE(ec.endDate, FUNCTION('LAST_DAY', ec.initDate))
+            OR :endDate BETWEEN ec.initDate AND COALESCE(ec.endDate, FUNCTION('LAST_DAY', ec.initDate))
+        )
+    """)
+    Optional<EmploymentContract> findContractPjOverlap(
+            @Param("initDate") LocalDate initDate,
+            @Param("endDate") LocalDate endDate
+    );
+
+    @Query("""
+        SELECT ec
+        FROM EmploymentContract ec
+        WHERE ec.endDate IS NULL
+    """)
+    Optional<EmploymentContract> findEmploymentContractOpened();
 }

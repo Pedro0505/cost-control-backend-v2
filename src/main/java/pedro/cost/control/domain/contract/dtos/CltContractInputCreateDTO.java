@@ -1,4 +1,4 @@
-package pedro.cost.control.domain.income.dtos;
+package pedro.cost.control.domain.contract.dtos;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import pedro.cost.control.domain.contract.enums.ContractType;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -16,17 +15,16 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Builder
-public class IncomeInputCreateDTO {
+public class CltContractInputCreateDTO {
     @NotNull
-    private String description;
-
-    @NotNull
-    private LocalDate referenceDate;
+    private BigDecimal netSalary;
 
     @NotNull
-    private ContractType contractType;
+    private BigDecimal grossSalary;
 
-    private BigDecimal amount;
+    @NotNull
+    private LocalDate contractInitDate;
 
-    private Integer businessDays;
+    @NotNull
+    private LocalDate contractEndDate;
 }
