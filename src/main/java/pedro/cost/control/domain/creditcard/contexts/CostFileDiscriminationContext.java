@@ -16,5 +16,8 @@ import java.time.LocalDate;
 public class CostFileDiscriminationContext {
     private LocalDate date;
     private String description;
+    private String rawDescription;
     private Double amount;
+    private Integer invoiceReferenceYear;
+    private Integer invoiceReferenceMonth;
 }

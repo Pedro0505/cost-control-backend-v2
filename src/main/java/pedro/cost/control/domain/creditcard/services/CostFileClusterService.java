@@ -1,65 +1,92 @@
 package pedro.cost.control.domain.creditcard.services;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import pedro.cost.control.domain.creditcard.contexts.CostFileDiscriminationContext;
-import pedro.cost.control.domain.creditcard.emuns.CreditCardCategoryType;
-import pedro.cost.control.domain.creditcard.entities.CreditCardCategory;
-import pedro.cost.control.domain.creditcard.entities.CreditCardCategoryRule;
 
 import java.text.Normalizer;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Component
-@RequiredArgsConstructor
 public class CostFileClusterService {
-    private final CreditCardCategoryRuleService cardCategoryRuleService;
-    private final CreditCardCategoryService creditCardCategoryService;
+    private static final Pattern ASSINATURAS_GOOGLE = Pattern.compile("(?i).*dl\\*google.*(youtub|google|one|play).*");
+
+    private final LinkedHashMap<Pattern, String> fixedMappings = new LinkedHashMap<>();
+    private final List<Pattern> excludedMappings = new ArrayList<>();
+
+    public CostFileClusterService() {
+        excludedMappings.add(Pattern.compile("(?i)\\bpagamento(s)?\\s*recebido\\b"));
+        excludedMappings.add(Pattern.compile("(?i)\\bestorno\\b"));
+
+        fixedMappings.put(Pattern.compile("(?i).*amazon\\s*prime.*"), "Assinaturas");
+        fixedMappings.put(Pattern.compile("(?i).*prime\\s*aluguel.*"), "Assinaturas");
+        fixedMappings.put(ASSINATURAS_GOOGLE, "Assinaturas");
+        fixedMappings.put(Pattern.compile("(?i).*google\\s*(one|youtube|play).*"), "Assinaturas");
+        fixedMappings.put(Pattern.compile("(?i).*hbomax.*"), "Assinaturas");
+        fixedMappings.put(Pattern.compile("(?i).*microsoft.*(subscription|meses).*"), "Assinaturas");
+        fixedMappings.put(Pattern.compile("(?i).*match\\s*fit.*"), "Assinaturas");
+        fixedMappings.put(Pattern.compile("(?i).*ifood\\s*club.*"), "Assinaturas");
+        fixedMappings.put(Pattern.compile("(?i)^.*\\*\\s*melimais.*"), "Assinaturas");
+        fixedMappings.put(Pattern.compile("(?i).*vivo.*"), "Assinaturas");
+        fixedMappings.put(Pattern.compile("(?i).*ebanx.*|.*xsolla.*"), "Assinaturas");
+
+        fixedMappings.put(Pattern.compile("(?i).*uber.*trip.*"), "Transporte");
+        fixedMappings.put(Pattern.compile("(?i).*\\buber\\b.*"), "Transporte");
+        fixedMappings.put(Pattern.compile("(?i).*99app.*"), "Transporte");
+
+        fixedMappings.put(Pattern.compile("(?i)^ifd\\*.*"), "Ifood");
+        fixedMappings.put(Pattern.compile("(?i).*ifood.*"), "Ifood");
+
+        fixedMappings.put(Pattern.compile("(?i).*amazon.*"), "Amazon");
+
+        fixedMappings.put(Pattern.compile("(?i).*steam.*"), "Steam");
+
+        fixedMappings.put(Pattern.compile("(?i).*mercadolivre.*"), "Mercado Livre");
+        fixedMappings.put(Pattern.compile("(?i).*mercadopago.*"), "Mercado Livre");
+        fixedMappings.put(Pattern.compile("(?i)^mp"), "Mercado Livre");
+
+        fixedMappings.put(Pattern.compile("(?i).*padaria.*"), "Alimentação");
+
+        fixedMappings.put(Pattern.compile("(?i).*shopee.*"), "Compras Online");
+        fixedMappings.put(Pattern.compile("(?i).*magazineluiza.*|.*magalu.*|.*magazinelu.*"), "Compras Online");
+        fixedMappings.put(Pattern.compile("(?i).*kabum.*"), "Compras Online");
+        fixedMappings.put(Pattern.compile("(?i).*nike.*"), "Compras Online");
+        fixedMappings.put(Pattern.compile("(?i).*centauro.*"), "Compras Online");
+        fixedMappings.put(Pattern.compile("(?i).*ferreira\\s*costa.*"), "Compras Online");
+        fixedMappings.put(Pattern.compile("(?i).*nuuvem.*"), "Compras Online");
+
+        fixedMappings.put(Pattern.compile("(?i).*farmaci.*|.*pague\\s*menos.*|.*raiadrogasil.*"), "Saúde");
+
+    }
 
     public String normalizeDescription(String raw) {
-        if (raw == null) {
-            return getOutrosCategory().getName();
-        }
+        if (raw == null) return "Outros";
 
-        String title = raw.trim();
+        String original = raw.trim();
 
-        String noAccents = Normalizer.normalize(title, Normalizer.Form.NFD)
+        String normalized = Normalizer.normalize(original, Normalizer.Form.NFD)
                 .replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
+                .replace('\u00A0', ' ')
                 .replaceAll("(?i)\\s*-\\s*parcela.*$", "")
                 .trim();
 
-        String lower = noAccents.toLowerCase();
-
-        if (lower.contains("ifood") || lower.contains("ifd") || lower.contains("ifoo")) {
-            return "Ifood";
+        if (isExcluded(normalized)) {
+            return null;
         }
 
-        List<CreditCardCategoryRule> rules = cardCategoryRuleService.getByActiveTrue();
-
-        for (CreditCardCategoryRule rule : rules) {
-            Pattern pattern = Pattern.compile(rule.getPattern(), Pattern.CASE_INSENSITIVE);
-            Matcher matcher = pattern.matcher(noAccents);
-
-            if (matcher.find()) {
-                CreditCardCategory category = rule.getCategory();
-                return category.getName();
+        for (Map.Entry<Pattern, String> entry : fixedMappings.entrySet()) {
+            if (entry.getKey().matcher(normalized).find()) {
+                return entry.getValue();
             }
         }
 
-        return getOutrosCategory().getName();
+        return "Outros";
     }
 
-    private CreditCardCategory getOutrosCategory() {
-        return creditCardCategoryService.getCardCategoryByType(CreditCardCategoryType.OUTROS);
-    }
-
-    public Map<String, List<CostFileDiscriminationContext>> groupExpensesByEnterprise(
-            List<CostFileDiscriminationContext> inputList
-    ) {
-        return inputList.stream().collect(Collectors.groupingBy(item -> normalizeDescription(item.getDescription())));
+    private boolean isExcluded(String normalized) {
+        return excludedMappings.stream()
+                .anyMatch(p -> p.matcher(normalized).find());
     }
 }

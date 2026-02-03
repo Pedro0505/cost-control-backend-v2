@@ -15,7 +15,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Stream;
 
-@Component
+@Component("text/csv")
 public class CsvReader implements ReadFilesImplementations {
     @Override
     public List<CostFileDiscriminationContext> read(MultipartFile file) {
@@ -47,7 +47,7 @@ public class CsvReader implements ReadFilesImplementations {
 
         CostFileDiscriminationContext dto = new CostFileDiscriminationContext();
         dto.setDate(dateColumn);
-        dto.setDescription(descriptionColumn);
+        dto.setRawDescription(descriptionColumn);
         dto.setAmount(amountColumn);
 
         return dto;

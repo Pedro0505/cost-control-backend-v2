@@ -16,9 +16,13 @@ import pedro.cost.control.domain.creditcard.services.FileService;
 public class FileController {
     private final FileService fileService;
 
-    @PostMapping(value = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Void> processa(@RequestParam MultipartFile file) {
-        fileService.uploadFileContent(file);
+    @PostMapping(value = "/invoices", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> processa(
+            @RequestParam MultipartFile file,
+            @RequestParam(name = "invoiceReferenceYear") Integer invoiceReferenceYear,
+            @RequestParam(name = "invoiceReferenceMonth") Integer invoiceReferenceMonth
+    ) {
+        fileService.uploadInvoicesFiles(file, invoiceReferenceYear, invoiceReferenceMonth);
 
         return ResponseEntity.noContent().build();
     }

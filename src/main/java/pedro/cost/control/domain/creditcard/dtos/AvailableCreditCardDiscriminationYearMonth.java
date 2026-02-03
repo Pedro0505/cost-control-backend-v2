@@ -6,12 +6,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @Builder
-public class CreditCardCategoryRuleCreateInputDTO {
-    private String pattern;
-    private CreditCardCategoryCreateInputDTO category;
+public class AvailableCreditCardDiscriminationYearMonth {
+    private Integer availableYear;
+    private List<CreditCardDiscriminationMonthInfo> availableMonth;
 }
