@@ -1,23 +1,21 @@
 package pedro.cost.control.utils;
 
-import pedro.cost.control.common.YearMonthSummary;
+import pedro.cost.control.config.exceptions.BadRequestException;
 
 import java.time.LocalDate;
 
 public class MonthYearUtils {
     private MonthYearUtils() {}
 
-    public static YearMonthSummary decreaseMonth(Integer year, Integer month) {
-        int dayOfMonth = 1;
+    public static void validateMonthAndYear(Integer year, Integer month) {
+        Integer currentYear = LocalDate.now().getYear();
 
-        LocalDate localDate = LocalDate.of(year, month, dayOfMonth);
+        if (month < 1 || month > 12) {
+            throw new BadRequestException("O mês " + month + " é inválido");
+        }
 
-        LocalDate localDateMinusOneMonth = localDate.minusMonths(1);
-
-        return YearMonthSummary
-                .builder()
-                .month(localDateMinusOneMonth.getMonthValue())
-                .year(localDateMinusOneMonth.getYear())
-                .build();
+        if (year > currentYear || year < 2000) {
+            throw new BadRequestException("O ano " + year + " é inválido");
+        }
     }
 }
