@@ -15,8 +15,10 @@ import pedro.cost.control.domain.cost.dtos.UpdateCostInputDTO;
 import pedro.cost.control.domain.cost.entities.Cost;
 import pedro.cost.control.domain.cost.factories.CostCreationContextFactory;
 import pedro.cost.control.domain.cost.factories.CostFactory;
+import pedro.cost.control.domain.cost.factories.CostUpdateAmountFactory;
 import pedro.cost.control.domain.cost.repositories.CostRepository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -27,6 +29,7 @@ public class CostService {
     private final CostSummaryAssembler costSummaryAssembler;
     private final RecurrentCostImporterService importRecurrentCosts;
     private final CostFactory costFactory;
+    private final CostUpdateAmountFactory costUpdateAmountFactory;
 
     @Transactional
     public CostSummaryOutputDTO create(CreateCostInputDTO dto) {
@@ -48,8 +51,9 @@ public class CostService {
     @Transactional
     public CostSummaryOutputDTO update(Long id, UpdateCostInputDTO updateCostInputDTO) {
         Cost cost = findById(id);
+        BigDecimal updateAmount = costUpdateAmountFactory.getUpdateAmount(cost, updateCostInputDTO);
 
-        cost.setAmount(updateCostInputDTO.getAmount());
+        cost.setAmount(updateAmount);
         cost.setPercentage(updateCostInputDTO.getPercentage());
         cost.setDescription(updateCostInputDTO.getDescription());
         cost.setPaid(updateCostInputDTO.getPaid());
@@ -71,12 +75,9 @@ public class CostService {
 
     @Transactional
     public void importRecurrentCosts(ImportCostRecurrentInputDTO dto) {
-        MonthlyBalance targetBalance = costCreationContextFactory.create(
-                CreateCostInputDTO.builder()
-                        .referenceYear(dto.getTargetReferenceYear())
-                        .referenceMonth(dto.getTargetReferenceMonth())
-                        .build()
-        ).getMonthlyBalance();
+        MonthlyBalance targetBalance = costCreationContextFactory.getMonthlyBalanceByYearAndMonth(
+                dto.getTargetReferenceYear(), dto.getTargetReferenceMonth()
+        );
 
         importRecurrentCosts.importRecurrentCosts(dto, targetBalance);
     }

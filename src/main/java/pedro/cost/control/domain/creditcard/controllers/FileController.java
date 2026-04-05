@@ -22,7 +22,7 @@ public class FileController {
             @RequestParam(name = "invoiceReferenceYear") Integer invoiceReferenceYear,
             @RequestParam(name = "invoiceReferenceMonth") Integer invoiceReferenceMonth
     ) {
-        fileService.uploadInvoicesFiles(file, invoiceReferenceYear, invoiceReferenceMonth);
+        fileService.uploadInvoiceFile(file, invoiceReferenceYear, invoiceReferenceMonth);
 
         return ResponseEntity.noContent().build();
     }

@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pedro.cost.control.domain.creditcard.dtos.AvailableCreditCardDiscriminationYearMonth;
 import pedro.cost.control.domain.creditcard.dtos.CreditCardExpensesGroupedOutputDTO;
-import pedro.cost.control.domain.creditcard.dtos.ExpenseByCategoryDTO;
 import pedro.cost.control.domain.creditcard.dtos.ExpenseEvolutionDTO;
+import pedro.cost.control.domain.creditcard.dtos.InvoiceSummaryByYearMonth;
 import pedro.cost.control.domain.creditcard.services.CreditCardExpenseService;
 
 import java.util.List;
@@ -39,15 +39,15 @@ public class CreditCardExpenseController {
         return ResponseEntity.ok(creditCardExpensesGrouped);
     }
 
-    @GetMapping("/graph/total-by-expense-type")
-    public ResponseEntity<List<ExpenseByCategoryDTO>> getTotalByCategoryByInvoicePeriod(
+    @GetMapping("/graph/total-amount-by-month")
+    public ResponseEntity<List<InvoiceSummaryByYearMonth>> getTotalInvoiceAmountGroupedByYearMonth(
             @RequestParam(name = "invoiceStartYear", required = false) Integer invoiceStartYear,
             @RequestParam(name = "invoiceStartMonth", required = false) Integer invoiceStartMonth,
             @RequestParam(name = "invoiceEndYear", required = false) Integer invoiceEndYear,
             @RequestParam(name = "invoiceEndMonth", required = false) Integer invoiceEndMonth
     ) {
-        List<ExpenseByCategoryDTO> expenseByCategory =
-                creditCardExpenseService.getTotalByCategoryByInvoicePeriod(
+        List<InvoiceSummaryByYearMonth> expenseByCategory =
+                creditCardExpenseService.getTotalInvoiceAmountGroupedByYearMonth(
                         invoiceStartYear,
                         invoiceStartMonth,
                         invoiceEndYear,

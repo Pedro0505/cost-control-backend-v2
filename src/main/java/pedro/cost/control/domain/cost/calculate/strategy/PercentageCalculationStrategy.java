@@ -22,6 +22,7 @@ public class PercentageCalculationStrategy implements CostCalculationStrategy {
                 MonetaryCalculationRules.MONEY_ROUNDING
         );
 
-        return context.getPercentageAmount().multiply(percentageFactor);
+        return context.getPercentageAmount().multiply(percentageFactor)
+                .setScale(MonetaryCalculationRules.MONEY_SCALE, MonetaryCalculationRules.MONEY_ROUNDING);
     }
 }

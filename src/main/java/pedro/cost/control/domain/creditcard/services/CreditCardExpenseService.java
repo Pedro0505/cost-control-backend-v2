@@ -9,6 +9,7 @@ import pedro.cost.control.domain.creditcard.dtos.CreditCardDiscriminationMonthIn
 import pedro.cost.control.domain.creditcard.dtos.CreditCardExpensesGroupedOutputDTO;
 import pedro.cost.control.domain.creditcard.dtos.ExpenseByCategoryDTO;
 import pedro.cost.control.domain.creditcard.dtos.ExpenseEvolutionDTO;
+import pedro.cost.control.domain.creditcard.dtos.InvoiceSummaryByYearMonth;
 import pedro.cost.control.domain.creditcard.entities.CreditCardExpense;
 import pedro.cost.control.domain.creditcard.repositories.CreditCardExpenseRepository;
 import pedro.cost.control.utils.HandleNullablesUtils;
@@ -72,7 +73,7 @@ public class CreditCardExpenseService {
         creditCardExpenseRepository.saveAll(updatedCreditCardExpenses);
     }
 
-    public List<ExpenseByCategoryDTO> getTotalByCategoryByInvoicePeriod(
+    public List<InvoiceSummaryByYearMonth> getTotalInvoiceAmountGroupedByYearMonth(
             Integer invoiceStartYear,
             Integer invoiceStartMonth,
             Integer invoiceEndYear,
@@ -91,7 +92,7 @@ public class CreditCardExpenseService {
                 HandleNullablesUtils.getValueOrDefault(invoiceEndMonth, now.getMonthValue())
         );
 
-        return creditCardExpenseRepository.findTotalByCategoryByInvoicePeriod(
+        return creditCardExpenseRepository.findTotalInvoiceAmountGroupedByYearMonth(
                 start.getYear(),
                 start.getMonthValue(),
                 end.getYear(),

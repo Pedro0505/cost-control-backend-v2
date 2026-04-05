@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import pedro.cost.control.common.YearMonthSummary;
 import pedro.cost.control.domain.creditcard.dtos.ExpenseByCategoryDTO;
 import pedro.cost.control.domain.creditcard.dtos.ExpenseEvolutionDTO;
+import pedro.cost.control.domain.creditcard.dtos.InvoiceSummaryByYearMonth;
 import pedro.cost.control.domain.creditcard.entities.CreditCardExpense;
 
 import java.util.List;
@@ -38,8 +39,9 @@ public interface CreditCardExpenseRepository extends JpaRepository<CreditCardExp
     List<YearMonthSummary> findAllDistinctAddedInvoices();
 
     @Query("""
-        SELECT new pedro.cost.control.domain.creditcard.dtos.ExpenseByCategoryDTO(
-            c.normalizedDescription,
+        SELECT new pedro.cost.control.domain.creditcard.dtos.InvoiceSummaryByYearMonth(
+            c.invoiceReferenceMonth,
+            c.invoiceReferenceYear,
             SUM(c.amount)
         )
         FROM CreditCardExpense c
@@ -52,10 +54,10 @@ public interface CreditCardExpenseRepository extends JpaRepository<CreditCardExp
                 c.invoiceReferenceYear < :endYear
                 OR (c.invoiceReferenceYear = :endYear AND c.invoiceReferenceMonth <= :endMonth)
               )
-        GROUP BY c.normalizedDescription
-        ORDER BY SUM(c.amount) DESC
+        GROUP BY c.invoiceReferenceYear, c.invoiceReferenceMonth
+        ORDER BY c.invoiceReferenceYear, c.invoiceReferenceMonth
     """)
-    List<ExpenseByCategoryDTO> findTotalByCategoryByInvoicePeriod(
+    List<InvoiceSummaryByYearMonth> findTotalInvoiceAmountGroupedByYearMonth(
             @Param("startYear") Integer startYear,
             @Param("startMonth") Integer startMonth,
             @Param("endYear") Integer endYear,

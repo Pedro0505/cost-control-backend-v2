@@ -19,4 +19,5 @@ public class CostSummaryOutputDTO {
     private Boolean recurrent;
     private Boolean paid;
     private MoneySummaryOutputDTO moneySummary;
+    private BigDecimal percentage;
 }

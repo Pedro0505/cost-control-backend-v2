@@ -20,6 +20,7 @@ public interface CostRepository extends JpaRepository<Cost, Long> {
                 c.paid
             ) FROM Cost c
             WHERE c.monthlyBalance.referenceMonth = :month AND c.monthlyBalance.referenceYear = :year
+            ORDER BY c.amount DESC
             """)
     List<CostOutputDTO> findAllCostByYearMonth(@Param("year") Integer year, @Param("month") Integer month);
 

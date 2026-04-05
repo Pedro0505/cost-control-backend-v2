@@ -11,8 +11,15 @@ public class InvoicePeriodLockManager {
 
     private final ConcurrentHashMap<String, ReentrantLock> locks = new ConcurrentHashMap<>();
 
-    public Lock acquire(Integer year, Integer month) {
-        String key = year + "-" + month;
+    public Lock acquireMonth(Integer year, Integer month) {
+        String key = "MONTH-" + year + "-" + month;
+        ReentrantLock lock = locks.computeIfAbsent(key, k -> new ReentrantLock());
+        lock.lock();
+        return lock;
+    }
+
+    public Lock acquireYear(Integer year) {
+        String key = "YEAR-" + year;
         ReentrantLock lock = locks.computeIfAbsent(key, k -> new ReentrantLock());
         lock.lock();
         return lock;

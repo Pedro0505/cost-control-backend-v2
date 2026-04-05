@@ -17,6 +17,7 @@ import java.util.concurrent.locks.Lock;
 @Service
 @RequiredArgsConstructor
 public class FileService {
+
     private final Map<String, ReadFilesImplementations> readers;
     private final CreditCardExpensesHandler creditCardExpensesHandler;
     private final CreditCardExpenseMapper creditCardExpenseMapper;
@@ -24,8 +25,8 @@ public class FileService {
     private final InvoicePeriodLockManager lockManager;
 
     @Transactional
-    public void uploadInvoicesFiles(MultipartFile file, Integer invoiceReferenceYear, Integer invoiceReferenceMonth) {
-        Lock lock = lockManager.acquire(invoiceReferenceYear, invoiceReferenceMonth);
+    public void uploadInvoiceFile(MultipartFile file, Integer invoiceReferenceYear, Integer invoiceReferenceMonth) {
+        Lock monthLock = lockManager.acquireMonth(invoiceReferenceYear, invoiceReferenceMonth);
 
         try {
             MonthYearUtils.validateMonthAndYear(invoiceReferenceYear, invoiceReferenceMonth);
@@ -44,7 +45,7 @@ public class FileService {
 
             creditCardExpenseService.saveAll(expenses);
         } finally {
-            lock.unlock();
+            monthLock.unlock();
         }
     }
 }

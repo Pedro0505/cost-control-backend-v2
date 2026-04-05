@@ -1,6 +1,7 @@
 package pedro.cost.control.domain.creditcard.services;
 
 import org.springframework.stereotype.Component;
+import pedro.cost.control.domain.creditcard.emuns.DescriptionNameEnum;
 
 import java.text.Normalizer;
 import java.util.ArrayList;
@@ -20,44 +21,48 @@ public class CostFileClusterService {
         excludedMappings.add(Pattern.compile("(?i)\\bpagamento(s)?\\s*recebido\\b"));
         excludedMappings.add(Pattern.compile("(?i)\\bestorno\\b"));
 
-        fixedMappings.put(Pattern.compile("(?i).*amazon\\s*prime.*"), "Assinaturas");
-        fixedMappings.put(Pattern.compile("(?i).*prime\\s*aluguel.*"), "Assinaturas");
-        fixedMappings.put(ASSINATURAS_GOOGLE, "Assinaturas");
-        fixedMappings.put(Pattern.compile("(?i).*google\\s*(one|youtube|play).*"), "Assinaturas");
-        fixedMappings.put(Pattern.compile("(?i).*hbomax.*"), "Assinaturas");
-        fixedMappings.put(Pattern.compile("(?i).*microsoft.*(subscription|meses).*"), "Assinaturas");
-        fixedMappings.put(Pattern.compile("(?i).*match\\s*fit.*"), "Assinaturas");
-        fixedMappings.put(Pattern.compile("(?i).*ifood\\s*club.*"), "Assinaturas");
-        fixedMappings.put(Pattern.compile("(?i)^.*\\*\\s*melimais.*"), "Assinaturas");
-        fixedMappings.put(Pattern.compile("(?i).*vivo.*"), "Assinaturas");
-        fixedMappings.put(Pattern.compile("(?i).*ebanx.*|.*xsolla.*"), "Assinaturas");
+        fixedMappings.put(Pattern.compile("(?i).*amazon\\s*prime.*"), DescriptionNameEnum.ASSINATURAS.getValue());
+        fixedMappings.put(Pattern.compile("(?i).*prime\\s*aluguel.*"), DescriptionNameEnum.ASSINATURAS.getValue());
+        fixedMappings.put(ASSINATURAS_GOOGLE, DescriptionNameEnum.ASSINATURAS.getValue());
+        fixedMappings.put(Pattern.compile("(?i).*google\\s*(one|youtube|play).*"), DescriptionNameEnum.ASSINATURAS.getValue());
+        fixedMappings.put(Pattern.compile("(?i).*hbomax.*"), DescriptionNameEnum.ASSINATURAS.getValue());
+        fixedMappings.put(Pattern.compile("(?i).*microsoft.*(subscription|meses).*"), DescriptionNameEnum.ASSINATURAS.getValue());
+        fixedMappings.put(Pattern.compile("(?i).*match\\s*fit.*"), DescriptionNameEnum.ASSINATURAS.getValue());
+        fixedMappings.put(Pattern.compile("(?i).*ifood\\s*club.*"), DescriptionNameEnum.ASSINATURAS.getValue());
+        fixedMappings.put(Pattern.compile("(?i)^.*\\*\\s*melimais.*"), DescriptionNameEnum.ASSINATURAS.getValue());
+        fixedMappings.put(Pattern.compile("(?i).*vivo.*"), DescriptionNameEnum.ASSINATURAS.getValue());
+        fixedMappings.put(Pattern.compile("(?i).*ebanx.*|.*xsolla.*"), DescriptionNameEnum.ASSINATURAS.getValue());
+        fixedMappings.put(Pattern.compile("(?i).*crunchyroll.*"), DescriptionNameEnum.ASSINATURAS.getValue());
 
-        fixedMappings.put(Pattern.compile("(?i).*uber.*trip.*"), "Transporte");
-        fixedMappings.put(Pattern.compile("(?i).*\\buber\\b.*"), "Transporte");
-        fixedMappings.put(Pattern.compile("(?i).*99app.*"), "Transporte");
+        fixedMappings.put(Pattern.compile("(?i).*uber.*trip.*"), DescriptionNameEnum.TRANSPORTE.getValue());
+        fixedMappings.put(Pattern.compile("(?i).*\\buber\\b.*"), DescriptionNameEnum.TRANSPORTE.getValue());
+        fixedMappings.put(Pattern.compile("(?i).*99app.*"), DescriptionNameEnum.TRANSPORTE.getValue());
+        fixedMappings.put(Pattern.compile("(?i).*uberrides.*"), DescriptionNameEnum.TRANSPORTE.getValue());
 
-        fixedMappings.put(Pattern.compile("(?i)^ifd\\*.*"), "Ifood");
-        fixedMappings.put(Pattern.compile("(?i).*ifood.*"), "Ifood");
+        fixedMappings.put(Pattern.compile("(?i)^ifd\\*.*"), DescriptionNameEnum.DELIVERY.getValue());
+        fixedMappings.put(Pattern.compile("(?i).*ifood.*"), DescriptionNameEnum.DELIVERY.getValue());
+        fixedMappings.put(Pattern.compile("(?i)^ifd\\s+\\*.*"), DescriptionNameEnum.DELIVERY.getValue());
+        fixedMappings.put(Pattern.compile("(?i).*99food.*"), DescriptionNameEnum.DELIVERY.getValue());
 
-        fixedMappings.put(Pattern.compile("(?i).*amazon.*"), "Amazon");
+        fixedMappings.put(Pattern.compile("(?i).*amazon.*"), DescriptionNameEnum.AMAZON.getValue());
 
-        fixedMappings.put(Pattern.compile("(?i).*steam.*"), "Steam");
+        fixedMappings.put(Pattern.compile("(?i).*steam.*"), DescriptionNameEnum.STEAM.getValue());
 
-        fixedMappings.put(Pattern.compile("(?i).*mercadolivre.*"), "Mercado Livre");
-        fixedMappings.put(Pattern.compile("(?i).*mercadopago.*"), "Mercado Livre");
-        fixedMappings.put(Pattern.compile("(?i)^mp"), "Mercado Livre");
+        fixedMappings.put(Pattern.compile("(?i).*mercadolivre.*"), DescriptionNameEnum.MERCADOLIVRE.getValue());
+        fixedMappings.put(Pattern.compile("(?i).*mercadopago.*"), DescriptionNameEnum.MERCADOLIVRE.getValue());
+        fixedMappings.put(Pattern.compile("(?i)^mp"), DescriptionNameEnum.MERCADOLIVRE.getValue());
 
-        fixedMappings.put(Pattern.compile("(?i).*padaria.*"), "Alimentação");
+        fixedMappings.put(Pattern.compile("(?i).*padaria.*"), DescriptionNameEnum.ALIMENTACAO.getValue());
 
-        fixedMappings.put(Pattern.compile("(?i).*shopee.*"), "Compras Online");
-        fixedMappings.put(Pattern.compile("(?i).*magazineluiza.*|.*magalu.*|.*magazinelu.*"), "Compras Online");
-        fixedMappings.put(Pattern.compile("(?i).*kabum.*"), "Compras Online");
-        fixedMappings.put(Pattern.compile("(?i).*nike.*"), "Compras Online");
-        fixedMappings.put(Pattern.compile("(?i).*centauro.*"), "Compras Online");
-        fixedMappings.put(Pattern.compile("(?i).*ferreira\\s*costa.*"), "Compras Online");
-        fixedMappings.put(Pattern.compile("(?i).*nuuvem.*"), "Compras Online");
+        fixedMappings.put(Pattern.compile("(?i).*shopee.*"), DescriptionNameEnum.COMPRAS_ONLINE.getValue());
+        fixedMappings.put(Pattern.compile("(?i).*magazineluiza.*|.*magalu.*|.*magazinelu.*"), DescriptionNameEnum.COMPRAS_ONLINE.getValue());
+        fixedMappings.put(Pattern.compile("(?i).*kabum.*"), DescriptionNameEnum.COMPRAS_ONLINE.getValue());
+        fixedMappings.put(Pattern.compile("(?i).*nike.*"), DescriptionNameEnum.COMPRAS_ONLINE.getValue());
+        fixedMappings.put(Pattern.compile("(?i).*centauro.*"), DescriptionNameEnum.COMPRAS_ONLINE.getValue());
+        fixedMappings.put(Pattern.compile("(?i).*ferreira\\s*costa.*"), DescriptionNameEnum.COMPRAS_ONLINE.getValue());
+        fixedMappings.put(Pattern.compile("(?i).*nuuvem.*"), DescriptionNameEnum.COMPRAS_ONLINE.getValue());
 
-        fixedMappings.put(Pattern.compile("(?i).*farmaci.*|.*pague\\s*menos.*|.*raiadrogasil.*"), "Saúde");
+        fixedMappings.put(Pattern.compile("(?i).*farmaci.*|.*pague\\s*menos.*|.*raiadrogasil.*|.*pharma.*|.*fcia.*"), DescriptionNameEnum.SAUDE.getValue());
 
     }
 
