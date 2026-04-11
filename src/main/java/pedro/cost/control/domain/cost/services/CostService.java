@@ -11,11 +11,13 @@ import pedro.cost.control.domain.cost.dtos.CostOutputDTO;
 import pedro.cost.control.domain.cost.dtos.CostSummaryOutputDTO;
 import pedro.cost.control.domain.cost.dtos.CreateCostInputDTO;
 import pedro.cost.control.domain.cost.dtos.ImportCostRecurrentInputDTO;
+import pedro.cost.control.domain.cost.dtos.PreviewRecurrentCostsForImportOutPutDTO;
 import pedro.cost.control.domain.cost.dtos.UpdateCostInputDTO;
 import pedro.cost.control.domain.cost.entities.Cost;
 import pedro.cost.control.domain.cost.factories.CostCreationContextFactory;
 import pedro.cost.control.domain.cost.factories.CostFactory;
 import pedro.cost.control.domain.cost.factories.CostUpdateAmountFactory;
+import pedro.cost.control.domain.cost.mappers.CostMapper;
 import pedro.cost.control.domain.cost.repositories.CostRepository;
 
 import java.math.BigDecimal;
@@ -30,6 +32,7 @@ public class CostService {
     private final RecurrentCostImporterService importRecurrentCosts;
     private final CostFactory costFactory;
     private final CostUpdateAmountFactory costUpdateAmountFactory;
+    private final CostMapper costMapper;
 
     @Transactional
     public CostSummaryOutputDTO create(CreateCostInputDTO dto) {
@@ -80,5 +83,31 @@ public class CostService {
         );
 
         importRecurrentCosts.importRecurrentCosts(dto, targetBalance);
+    }
+
+
+    public List<PreviewRecurrentCostsForImportOutPutDTO> getPreviewRecurrentCostsForImport(
+            Integer sourceReferenceYear,
+            Integer sourceReferenceMonth,
+            Integer targetReferenceYear,
+            Integer targetReferenceMonth
+    ) {
+        MonthlyBalance targetBalance = costCreationContextFactory.getMonthlyBalanceByYearAndMonth(
+                targetReferenceYear, targetReferenceMonth
+        );
+
+        List<Cost> recalculatedCostFromTarget = importRecurrentCosts.getRecalculatedCostFromTarget(
+                sourceReferenceYear,
+                sourceReferenceMonth,
+                targetReferenceYear,
+                targetReferenceMonth,
+                targetBalance
+        );
+
+        List<Cost> recalculatedCostFromTargetRecurrent = recalculatedCostFromTarget.stream()
+                .filter(Cost::getRecurrent)
+                .toList();
+
+        return costMapper.costToPreviewRecurrentCostsForImportOutPutDTO(recalculatedCostFromTargetRecurrent);
     }
 }

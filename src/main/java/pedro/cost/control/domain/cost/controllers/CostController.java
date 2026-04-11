@@ -15,6 +15,7 @@ import pedro.cost.control.domain.cost.dtos.CostOutputDTO;
 import pedro.cost.control.domain.cost.dtos.CostSummaryOutputDTO;
 import pedro.cost.control.domain.cost.dtos.CreateCostInputDTO;
 import pedro.cost.control.domain.cost.dtos.ImportCostRecurrentInputDTO;
+import pedro.cost.control.domain.cost.dtos.PreviewRecurrentCostsForImportOutPutDTO;
 import pedro.cost.control.domain.cost.dtos.UpdateCostInputDTO;
 import pedro.cost.control.domain.cost.services.CostService;
 
@@ -60,5 +61,23 @@ public class CostController {
         costService.importRecurrentCosts(importCostRecurrentInputDTO);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @GetMapping("/recurrent/origin-destination")
+    public ResponseEntity<List<PreviewRecurrentCostsForImportOutPutDTO>> previewRecurrentCostsForImport(
+        @RequestParam(name = "sourceReferenceYear") Integer sourceReferenceYear,
+        @RequestParam(name = "sourceReferenceMonth") Integer sourceReferenceMonth,
+        @RequestParam(name = "targetReferenceYear") Integer targetReferenceYear,
+        @RequestParam(name = "targetReferenceMonth") Integer targetReferenceMonth
+    ) {
+        List<PreviewRecurrentCostsForImportOutPutDTO> previewRecurrentCostsForImport =  costService
+                .getPreviewRecurrentCostsForImport(
+                        sourceReferenceYear,
+                        sourceReferenceMonth,
+                        targetReferenceYear,
+                        targetReferenceMonth
+                );
+
+        return ResponseEntity.ok(previewRecurrentCostsForImport);
     }
 }
