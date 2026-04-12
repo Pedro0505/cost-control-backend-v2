@@ -2,7 +2,6 @@ package pedro.cost.control.domain.contract.dtos;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,7 +13,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Getter
 @Setter
-@Builder
 public class CltContractInputCreateDTO {
     @NotNull
     private BigDecimal netSalary;
