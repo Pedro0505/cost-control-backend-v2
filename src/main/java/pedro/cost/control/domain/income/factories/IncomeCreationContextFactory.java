@@ -13,7 +13,6 @@ import pedro.cost.control.domain.income.dtos.IncomeInputCreateDTO;
 import pedro.cost.control.domain.income.resolvers.IncomeAmountResolver;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
 @Component
 @RequiredArgsConstructor
@@ -23,9 +22,7 @@ public class IncomeCreationContextFactory {
     private final IncomeAmountResolver incomeAmountResolver;
 
     public IncomeCreationContext create(IncomeInputCreateDTO dto) {
-        LocalDate referenceDateLastMonth = dto.getReferenceDate().minusMonths(1);
-
-        ContractSummaryDTO contract = employmentContractService.getOpenedEmploymentContract(referenceDateLastMonth);
+        ContractSummaryDTO contract = employmentContractService.getOpenedEmploymentContract(dto.getReferenceDate());
 
         checkIncomeCreateCorrespondsTheCurrentContract(dto.getContractType(), contract);
 

@@ -16,14 +16,14 @@ public class IncomeAmountResolver {
 
     public BigDecimal resolve(IncomeInputCreateDTO input, ContractSummaryDTO contract) {
 
-        if (isUserDefinedAmount(input)) {
+        if (isUserAmountDefinition(input)) {
             return input.getAmount();
         }
 
         return calculateAutomaticAmount(input, contract);
     }
 
-    private boolean isUserDefinedAmount(IncomeInputCreateDTO input) {
+    private boolean isUserAmountDefinition(IncomeInputCreateDTO input) {
         return input.getAmount() != null && input.getAmount().compareTo(BigDecimal.ZERO) > 0;
     }
 

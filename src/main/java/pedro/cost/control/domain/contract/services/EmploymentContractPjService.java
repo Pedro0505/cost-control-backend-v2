@@ -7,6 +7,8 @@ import pedro.cost.control.domain.contract.entities.EmploymentContract;
 import pedro.cost.control.domain.contract.entities.EmploymentContractPj;
 import pedro.cost.control.domain.contract.repositories.EmploymentContractPjRepository;
 
+import java.time.LocalDate;
+
 @Service
 @RequiredArgsConstructor
 public class EmploymentContractPjService {
@@ -23,6 +25,8 @@ public class EmploymentContractPjService {
     }
 
     public EmploymentContract getEmploymentContractByYearAndMonth(Integer year, Integer month) {
-        return employmentContractPjRepository.findEmploymentContractByYearAndMonth(year, month);
+        LocalDate referenceDate = LocalDate.of(year, month, 1);
+
+        return employmentContractPjRepository.findEmploymentContractByYearAndMonth(referenceDate);
     }
 }
