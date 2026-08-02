@@ -33,10 +33,12 @@ public class CostFileClusterService {
         fixedMappings.put(Pattern.compile("(?i).*vivo.*"), DescriptionNameEnum.ASSINATURAS.getValue());
         fixedMappings.put(Pattern.compile("(?i).*ebanx.*|.*xsolla.*"), DescriptionNameEnum.ASSINATURAS.getValue());
         fixedMappings.put(Pattern.compile("(?i).*crunchyroll.*"), DescriptionNameEnum.ASSINATURAS.getValue());
+        fixedMappings.put(Pattern.compile("(?i)^dl\\s*\\*\\s*google\\s+chess\\b.*"), DescriptionNameEnum.ASSINATURAS.getValue());
 
         fixedMappings.put(Pattern.compile("(?i).*uber.*trip.*"), DescriptionNameEnum.TRANSPORTE.getValue());
         fixedMappings.put(Pattern.compile("(?i).*\\buber\\b.*"), DescriptionNameEnum.TRANSPORTE.getValue());
         fixedMappings.put(Pattern.compile("(?i).*99app.*"), DescriptionNameEnum.TRANSPORTE.getValue());
+        fixedMappings.put(Pattern.compile("(?i).*\\bdl\\s*\\*\\s*99\\s+ride\\b.*"), DescriptionNameEnum.TRANSPORTE.getValue());
         fixedMappings.put(Pattern.compile("(?i).*uberrides.*"), DescriptionNameEnum.TRANSPORTE.getValue());
 
         fixedMappings.put(Pattern.compile("(?i)^ifd\\*.*"), DescriptionNameEnum.DELIVERY.getValue());
@@ -62,8 +64,7 @@ public class CostFileClusterService {
         fixedMappings.put(Pattern.compile("(?i).*ferreira\\s*costa.*"), DescriptionNameEnum.COMPRAS_ONLINE.getValue());
         fixedMappings.put(Pattern.compile("(?i).*nuuvem.*"), DescriptionNameEnum.COMPRAS_ONLINE.getValue());
 
-        fixedMappings.put(Pattern.compile("(?i).*farmaci.*|.*pague\\s*menos.*|.*raiadrogasil.*|.*pharma.*|.*fcia.*"), DescriptionNameEnum.SAUDE.getValue());
-
+        fixedMappings.put(Pattern.compile("(?i).*farmaci.*|.*pague\\s*menos.*|.*raiadrogasil.*|.*pharma.*|.*fcia.*|.*raia\\sdrogasil.*"), DescriptionNameEnum.SAUDE.getValue());
     }
 
     public String normalizeDescription(String raw) {

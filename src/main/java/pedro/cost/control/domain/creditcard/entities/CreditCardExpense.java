@@ -43,4 +43,7 @@ public class CreditCardExpense {
 
     @Column(nullable = false)
     private LocalDate expenseDate;
+
+    @Column(name = "is_installment", nullable = false)
+    private boolean installment;
 }

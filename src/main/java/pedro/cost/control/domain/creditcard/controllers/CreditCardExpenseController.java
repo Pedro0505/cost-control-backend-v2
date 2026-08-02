@@ -11,6 +11,8 @@ import pedro.cost.control.domain.creditcard.dtos.AvailableCreditCardDiscriminati
 import pedro.cost.control.domain.creditcard.dtos.CreditCardExpensesGroupedOutputDTO;
 import pedro.cost.control.domain.creditcard.dtos.ExpenseEvolutionDTO;
 import pedro.cost.control.domain.creditcard.dtos.InvoiceSummaryByYearMonth;
+import pedro.cost.control.domain.creditcard.records.CreditCardExpensePercentageResponse;
+import pedro.cost.control.domain.creditcard.records.CreditCardInstallmentPercentageResponse;
 import pedro.cost.control.domain.creditcard.services.CreditCardExpenseService;
 
 import java.util.List;
@@ -69,5 +71,21 @@ public class CreditCardExpenseController {
         creditCardExpenseService.reprocessingCreditCardExpensesDescriptions();
 
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/percentage")
+    public List<CreditCardExpensePercentageResponse> getPercentage(
+            @RequestParam Integer month,
+            @RequestParam Integer year
+    ) {
+        return creditCardExpenseService.getPercentageByMonthAndYear(month, year);
+    }
+
+    @GetMapping("/installment-percentage")
+    public CreditCardInstallmentPercentageResponse getInstallmentPercentage(
+            @RequestParam Integer month,
+            @RequestParam Integer year
+    ) {
+        return creditCardExpenseService.getInstallmentPercentageByMonthAndYear(month, year);
     }
 }

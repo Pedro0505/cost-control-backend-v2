@@ -12,6 +12,8 @@ import pedro.cost.control.domain.creditcard.dtos.ExpenseByCategoryDTO;
 import pedro.cost.control.domain.creditcard.dtos.ExpenseEvolutionDTO;
 import pedro.cost.control.domain.creditcard.dtos.InvoiceSummaryByYearMonth;
 import pedro.cost.control.domain.creditcard.entities.CreditCardExpense;
+import pedro.cost.control.domain.creditcard.records.CreditCardExpensePercentageResponse;
+import pedro.cost.control.domain.creditcard.records.CreditCardInstallmentPercentageResponse;
 
 import java.util.List;
 
@@ -121,5 +123,76 @@ public interface CreditCardExpenseRepository extends JpaRepository<CreditCardExp
             @Param("startMonth") Integer startMonth,
             @Param("endYear") Integer endYear,
             @Param("endMonth") Integer endMonth
+    );
+
+    @Query("""
+        SELECT new pedro.cost.control.domain.creditcard.records.CreditCardExpensePercentageResponse(
+            e.invoiceReferenceMonth,
+            e.invoiceReferenceYear,
+            e.normalizedDescription,
+            CAST(
+                (SUM(e.amount) * 100) /
+                (
+                    SELECT SUM(e2.amount)
+                    FROM CreditCardExpense e2
+                    WHERE e2.invoiceReferenceMonth = :month
+                    AND e2.invoiceReferenceYear = :year
+                )
+                AS BigDecimal
+            )
+        )
+        FROM CreditCardExpense e
+        WHERE e.invoiceReferenceMonth = :month
+        AND e.invoiceReferenceYear = :year
+        GROUP BY
+            e.invoiceReferenceMonth,
+            e.invoiceReferenceYear,
+            e.normalizedDescription
+        ORDER BY SUM(e.amount) DESC
+    """)
+    List<CreditCardExpensePercentageResponse> findPercentageByMonthAndYear(
+            @Param("month") Integer month,
+            @Param("year") Integer year
+    );
+
+    @Query("""
+        SELECT new pedro.cost.control.domain.creditcard.records.CreditCardInstallmentPercentageResponse(
+            e.invoiceReferenceMonth,
+            e.invoiceReferenceYear,
+    
+            CAST(
+                (
+                    SUM(
+                        CASE
+                            WHEN e.installment = true THEN e.amount
+                            ELSE 0
+                        END
+                    ) * 100
+                ) / SUM(e.amount)
+                AS BigDecimal
+            ),
+    
+            CAST(
+                (
+                    SUM(
+                        CASE
+                            WHEN e.installment = false THEN e.amount
+                            ELSE 0
+                        END
+                    ) * 100
+                ) / SUM(e.amount)
+                AS BigDecimal
+            )
+        )
+        FROM CreditCardExpense e
+        WHERE e.invoiceReferenceMonth = :month
+          AND e.invoiceReferenceYear = :year
+        GROUP BY
+            e.invoiceReferenceMonth,
+            e.invoiceReferenceYear
+    """)
+    CreditCardInstallmentPercentageResponse findInstallmentPercentageByMonthAndYear(
+            @Param("month") Integer month,
+            @Param("year") Integer year
     );
 }

@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Component
@@ -29,6 +30,7 @@ public class CreditCardExpensesHandler {
                         .amount(e.getAmount())
                         .date(e.getDate())
                         .description(costFileClusterService.normalizeDescription(e.getRawDescription()))
+                        .isInstallment(defineIfIsInstallment(e.getRawDescription()))
                         .rawDescription(e.getRawDescription())
                         .invoiceReferenceYear(invoiceReferenceYear)
                         .invoiceReferenceMonth(invoiceReferenceMonth)
@@ -51,7 +53,11 @@ public class CreditCardExpensesHandler {
     }
 
     public List<CreditCardExpense> updateCreditCardExpenseDescriptions(List<CreditCardExpense> creditCardExpenses) {
-        creditCardExpenses.forEach(e -> e.setNormalizedDescription(costFileClusterService.normalizeDescription(e.getRawDescription())));
+        creditCardExpenses.forEach(e -> {
+                e.setNormalizedDescription(costFileClusterService.normalizeDescription(e.getRawDescription()));
+                e.setInstallment(defineIfIsInstallment(e.getRawDescription()));
+            }
+        );
         return creditCardExpenses;
     }
 
@@ -79,5 +85,11 @@ public class CreditCardExpensesHandler {
                 .amount(expense.getAmount())
                 .rawDescription(expense.getRawDescription())
                 .build();
+    }
+
+    private boolean defineIfIsInstallment(String texto) {
+        return Pattern.compile("parcela", Pattern.CASE_INSENSITIVE)
+                .matcher(texto)
+                .find();
     }
 }

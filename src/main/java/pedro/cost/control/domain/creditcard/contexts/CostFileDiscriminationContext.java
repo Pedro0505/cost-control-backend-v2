@@ -20,4 +20,5 @@ public class CostFileDiscriminationContext {
     private Double amount;
     private Integer invoiceReferenceYear;
     private Integer invoiceReferenceMonth;
+    private Boolean isInstallment;
 }
