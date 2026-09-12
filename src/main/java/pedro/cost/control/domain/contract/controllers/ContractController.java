@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,6 +17,7 @@ import pedro.cost.control.domain.contract.dtos.CltContractInputCreateDTO;
 import pedro.cost.control.domain.contract.dtos.EmploymentContractOutputDTO;
 import pedro.cost.control.domain.contract.dtos.PjContractInputCreateDTO;
 import pedro.cost.control.domain.contract.services.EmploymentContractService;
+import pedro.cost.control.security.CustomUserDetails;
 
 @RestController
 @RequestMapping("/api/v2/contracts")
@@ -25,24 +27,30 @@ public class ContractController {
 
     @GetMapping
     public ResponseEntity<LegacyPageResponse<EmploymentContractOutputDTO>> getAllContractsPaged(
-            @RequestParam Integer page, @RequestParam Integer size
+            @RequestParam Integer page, @RequestParam Integer size, @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         PageRequest pageable = PageRequest.of(page, size, Sort.by("initDate", "endDate").descending());
-        LegacyPageResponse<EmploymentContractOutputDTO> employmentContractPage = employmentContractService.getAllContractsPaged(pageable);
+        LegacyPageResponse<EmploymentContractOutputDTO> employmentContractPage = employmentContractService.getAllContractsPaged(
+                pageable, userDetails.getId()
+        );
 
         return ResponseEntity.ok(employmentContractPage);
     }
 
     @PostMapping("/employment/pj")
-    public ResponseEntity<Void> addNewPjContract(@RequestBody PjContractInputCreateDTO pjContractInputCreateDTO) {
-        employmentContractService.addNewPjContract(pjContractInputCreateDTO);
+    public ResponseEntity<Void> addNewPjContract(
+            @RequestBody PjContractInputCreateDTO pjContractInputCreateDTO,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        employmentContractService.addNewPjContract(pjContractInputCreateDTO, userDetails.getUser());
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PostMapping("/employment/clt")
-    public ResponseEntity<Void> addNewCltContract(@RequestBody CltContractInputCreateDTO cltContractInputCreateDTO) {
-        employmentContractService.addNewCltContract(cltContractInputCreateDTO);
+    public ResponseEntity<Void> addNewCltContract(
+            @RequestBody CltContractInputCreateDTO cltContractInputCreateDTO,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        employmentContractService.addNewCltContract(cltContractInputCreateDTO, userDetails.getUser());
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

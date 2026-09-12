@@ -8,6 +8,7 @@ import pedro.cost.control.domain.creditcard.contexts.CostFileDiscriminationConte
 import pedro.cost.control.domain.creditcard.entities.CreditCardExpense;
 import pedro.cost.control.domain.creditcard.implementations.ReadFilesImplementations;
 import pedro.cost.control.domain.creditcard.mapper.CreditCardExpenseMapper;
+import pedro.cost.control.security.CustomUserDetails;
 import pedro.cost.control.utils.MonthYearUtils;
 
 import java.util.List;
@@ -25,7 +26,7 @@ public class FileService {
     private final InvoicePeriodLockManager lockManager;
 
     @Transactional
-    public void uploadInvoiceFile(MultipartFile file, Integer invoiceReferenceYear, Integer invoiceReferenceMonth) {
+    public void uploadInvoiceFile(MultipartFile file, Integer invoiceReferenceYear, Integer invoiceReferenceMonth, CustomUserDetails userDetails) {
         Lock monthLock = lockManager.acquireMonth(invoiceReferenceYear, invoiceReferenceMonth);
 
         try {
@@ -41,7 +42,9 @@ public class FileService {
 
             List<CreditCardExpense> expenses = creditCardExpenseMapper.toEntityList(normalized);
 
-            creditCardExpenseService.deleteAllByYearAndMonth(invoiceReferenceYear, invoiceReferenceMonth);
+            expenses.forEach(expense -> expense.setUser(userDetails.getUser()));
+
+            creditCardExpenseService.deleteAllByYearAndMonth(invoiceReferenceYear, invoiceReferenceMonth, userDetails.getId());
 
             creditCardExpenseService.saveAll(expenses);
         } finally {

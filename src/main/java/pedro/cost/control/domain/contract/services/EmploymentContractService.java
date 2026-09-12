@@ -16,6 +16,7 @@ import pedro.cost.control.domain.contract.entities.EmploymentContract;
 import pedro.cost.control.domain.contract.entities.EmploymentContractClt;
 import pedro.cost.control.domain.contract.entities.EmploymentContractPj;
 import pedro.cost.control.domain.contract.repositories.EmploymentContractRepository;
+import pedro.cost.control.domain.user.entities.User;
 
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
@@ -29,49 +30,51 @@ public class EmploymentContractService {
     private final EmploymentContractRepository employmentContractRepository;
 
     @Transactional
-    private void addNewContract(EmploymentContract newContract, LocalDate initDate, LocalDate endDate) {
-        validateIfHasContractOverlap(initDate, endDate);
+    private void addNewContract(EmploymentContract newContract, LocalDate initDate, LocalDate endDate, Long userId) {
+        validateIfHasContractOverlap(initDate, endDate, userId);
 
-        Optional<EmploymentContract> openedEmploymentContract = getEmploymentContractOpened();
+        Optional<EmploymentContract> openedEmploymentContract = getEmploymentContractOpened(userId);
 
         endsOpenContractsDate(newContract.getInitDate(), openedEmploymentContract.orElse(null));
 
         employmentContractRepository.save(newContract);
     }
 
-    public void addNewPjContract(PjContractInputCreateDTO dto) {
-        EmploymentContractPj contract = employmentContractPjService.createEmploymentContractPjObject(dto);
+    public void addNewPjContract(PjContractInputCreateDTO dto, User user) {
+        EmploymentContractPj contract = employmentContractPjService.createEmploymentContractPjObject(dto, user);
 
-        addNewContract(contract, dto.getContractInitDate(),dto.getContractEndDate());
+        addNewContract(contract, dto.getContractInitDate(),dto.getContractEndDate(), user.getId());
     }
 
-    public void addNewCltContract(CltContractInputCreateDTO dto) {
-        EmploymentContractClt contract = employmentContractCltService.createEmploymentContractCltObject(dto);
+    public void addNewCltContract(CltContractInputCreateDTO dto, User user) {
+        EmploymentContractClt contract = employmentContractCltService.createEmploymentContractCltObject(dto, user);
 
-        addNewContract(contract,dto.getContractInitDate(),dto.getContractEndDate());
+        addNewContract(contract,dto.getContractInitDate(),dto.getContractEndDate(), user.getId());
     }
 
     public void save(EmploymentContract employmentContract) {
         employmentContractRepository.save(employmentContract);
     }
 
-    public ContractSummaryDTO getOpenedEmploymentContract(LocalDate referenceDate) {
-        return employmentContractRepository.findOpenedEmploymentContract(referenceDate)
+    public ContractSummaryDTO getOpenedEmploymentContract(LocalDate referenceDate, Long userId) {
+        return employmentContractRepository.findOpenedEmploymentContract(referenceDate, userId)
                 .orElseThrow(() -> new NotFoundException("Contrato ativo não encontrado"));
     }
 
-    public LegacyPageResponse<EmploymentContractOutputDTO> getAllContractsPaged(PageRequest pageable) {
-        Page<EmploymentContractOutputDTO> employmentContract = employmentContractRepository.getAllContractsPaged(pageable);
+    public LegacyPageResponse<EmploymentContractOutputDTO> getAllContractsPaged(PageRequest pageable, Long userId) {
+        Page<EmploymentContractOutputDTO> employmentContract = employmentContractRepository.getAllContractsPaged(
+                pageable, userId
+        );
 
         return new LegacyPageResponse<>(employmentContract);
     }
 
-    public Optional<EmploymentContract> getEmploymentContractOverlap(LocalDate initDate, LocalDate endDate) {
-        return employmentContractRepository.findContractPjOverlap(initDate, endDate);
+    public Optional<EmploymentContract> getEmploymentContractOverlap(LocalDate initDate, LocalDate endDate, Long userId) {
+        return employmentContractRepository.findContractPjOverlap(initDate, endDate, userId);
     }
 
-    private void validateIfHasContractOverlap(LocalDate initDate, LocalDate endDate) {
-        Optional<EmploymentContract> employmentContractOverlap = getEmploymentContractOverlap(initDate, endDate);
+    private void validateIfHasContractOverlap(LocalDate initDate, LocalDate endDate, Long userId) {
+        Optional<EmploymentContract> employmentContractOverlap = getEmploymentContractOverlap(initDate, endDate, userId);
 
         if (employmentContractOverlap.isPresent()) {
             throw new ConflictException("Já existe um contrato " + employmentContractOverlap.get().getContractType() + " ativo para essa data");
@@ -85,7 +88,7 @@ public class EmploymentContractService {
         }
     }
 
-    private Optional<EmploymentContract> getEmploymentContractOpened() {
-        return employmentContractRepository.findEmploymentContractOpened();
+    private Optional<EmploymentContract> getEmploymentContractOpened(Long userId) {
+        return employmentContractRepository.findEmploymentContractOpened(userId);
     }
 }

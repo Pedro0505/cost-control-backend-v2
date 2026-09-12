@@ -15,8 +15,8 @@ import java.util.List;
 public class FinancialBalanceService {
     private final IncomeService incomeService;
 
-    public BalanceSummaryOutputDTO calculateFinancialSummaryByMonth(List<CostOutputDTO> costs, Integer year, Integer month) {
-        BigDecimal income = incomeService.getTotalIncomeByYearAndMonth(year, month);
+    public BalanceSummaryOutputDTO calculateFinancialSummaryByMonth(List<CostOutputDTO> costs, Integer year, Integer month, Long userId) {
+        BigDecimal income = incomeService.getTotalIncomeByYearAndMonth(year, month, userId);
         BigDecimal expense = calculateExpense(costs);
         BigDecimal balance = calculateBalance(income, expense);
 

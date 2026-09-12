@@ -1,6 +1,8 @@
-package pedro.cost.control.contract.mocks;
+package pedro.cost.control.builders.entities;
 
+import pedro.cost.control.builders.dto.TestUser;
 import pedro.cost.control.domain.contract.entities.EmploymentContractClt;
+import pedro.cost.control.domain.user.entities.User;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -12,6 +14,7 @@ public class EmploymentContractCltTestBuilder {
     private LocalDate contractInitDate;
     private LocalDate contractEndDate;
     private String contractType;
+    private User user;
 
     public static EmploymentContractCltTestBuilder builder() {
         return new EmploymentContractCltTestBuilder();
@@ -42,6 +45,17 @@ public class EmploymentContractCltTestBuilder {
         return this;
     }
 
+    public EmploymentContractCltTestBuilder withUser(TestUser user) {
+        this.user = User.builder()
+                .id(user.user().getId())
+                .email(user.user().getEmail())
+                .username(user.user().getUsername())
+                .password(user.user().getPassword())
+                .build();
+
+        return this;
+    }
+
     public EmploymentContractClt build() {
         EmploymentContractClt clt = new EmploymentContractClt();
         clt.setGrossSalary(grossSalary);
@@ -49,6 +63,7 @@ public class EmploymentContractCltTestBuilder {
         clt.setInitDate(contractInitDate);
         clt.setEndDate(contractEndDate);
         clt.setContractType(contractType);
+        clt.setUser(user);
         return clt;
     }
 }

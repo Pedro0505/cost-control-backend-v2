@@ -11,21 +11,31 @@ import java.util.Optional;
 @Repository
 public interface PjMonthlyWorkRepository extends JpaRepository<PjMonthlyWork, Long> {
     @Query("""
-        SELECT pmw FROM PjMonthlyWork pmw
-        WHERE pmw.referenceMonth = :month AND pmw.referenceYear = :year
+        SELECT pmw
+        FROM PjMonthlyWork pmw
+        JOIN pmw.employmentContract ec
+        WHERE pmw.referenceMonth = :month
+          AND pmw.referenceYear = :year
+          AND ec.user.id = :userId
     """)
-    Optional<PjMonthlyWork> findByYearAndMonth(@Param("year") Integer year, @Param("month") Integer month);
+    Optional<PjMonthlyWork> findByYearAndMonth(
+            @Param("year") Integer year,
+            @Param("month") Integer month,
+            @Param("userId") Long userId
+    );
 
     @Query("""
         SELECT pmw
         FROM PjMonthlyWork pmw
-        WHERE EXISTS (
-            SELECT 1
-            FROM Income i
-            WHERE i.id = :incomeId
-              AND pmw.referenceMonth = i.monthlyBalance.referenceMonth
-              AND pmw.referenceYear = i.monthlyBalance.referenceYear
-        )
+        JOIN pmw.employmentContract ec
+        JOIN Income i ON i.employmentContract = ec
+        WHERE i.id = :incomeId
+          AND i.user.id = :userId
+          AND pmw.referenceMonth = i.monthlyBalance.referenceMonth
+          AND pmw.referenceYear = i.monthlyBalance.referenceYear
     """)
-    Optional<PjMonthlyWork> findPjMonthlyWorkLinkedWithIncomeId(@Param("incomeId") Long incomeId);
+    Optional<PjMonthlyWork> findPjMonthlyWorkLinkedWithIncomeId(
+            @Param("incomeId") Long incomeId,
+            @Param("userId") Long userId
+    );
 }

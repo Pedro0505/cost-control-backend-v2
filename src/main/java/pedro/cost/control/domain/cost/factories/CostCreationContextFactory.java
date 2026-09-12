@@ -18,10 +18,10 @@ public class CostCreationContextFactory {
     private final MonthlyBalanceService monthlyBalanceService;
     private final CostAmountResolver costAmountResolver;
 
-    public CostCreationContext create(CreateCostInputDTO dto) {
-        MonthlyBalance balance = getMonthlyBalanceByYearAndMonth(dto.getReferenceYear(), dto.getReferenceMonth());
+    public CostCreationContext create(CreateCostInputDTO dto, Long userId) {
+        MonthlyBalance balance = getMonthlyBalanceByYearAndMonth(dto.getReferenceYear(), dto.getReferenceMonth(), userId);
         AmountCalculationContext amountCalculationContext = buildContext(dto);
-        BigDecimal amount = costAmountResolver.resolve(amountCalculationContext);
+        BigDecimal amount = costAmountResolver.resolve(amountCalculationContext, userId);
 
         return CostCreationContext.builder()
                 .input(dto)
@@ -40,8 +40,8 @@ public class CostCreationContextFactory {
                 .build();
     }
 
-    public MonthlyBalance getMonthlyBalanceByYearAndMonth(Integer year, Integer month) {
-        return monthlyBalanceService.getMonthlyBalanceByYearAndMonth(year, month)
+    public MonthlyBalance getMonthlyBalanceByYearAndMonth(Integer year, Integer month, Long userId) {
+        return monthlyBalanceService.getMonthlyBalanceByYearAndMonth(year, month, userId)
                 .orElseThrow(() -> new NotFoundException("Não foi encontrado o mês " + month + " e ano " + year));
     }
 }

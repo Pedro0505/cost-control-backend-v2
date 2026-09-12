@@ -3,6 +3,7 @@ package pedro.cost.control.domain.cost.controllers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +19,7 @@ import pedro.cost.control.domain.cost.dtos.ImportCostRecurrentInputDTO;
 import pedro.cost.control.domain.cost.dtos.PreviewRecurrentCostsForImportOutPutDTO;
 import pedro.cost.control.domain.cost.dtos.UpdateCostInputDTO;
 import pedro.cost.control.domain.cost.services.CostService;
+import pedro.cost.control.security.CustomUserDetails;
 
 import java.util.List;
 
@@ -29,36 +31,45 @@ public class CostController {
 
     @GetMapping
     public ResponseEntity<List<CostOutputDTO>> getAllByYearAndMonth(@RequestParam(name = "year") Integer year,
-                                                                    @RequestParam(name = "month") Integer month) {
-        List<CostOutputDTO> costs = costService.getAllCostByYearMonth(year, month);
+                                                                    @RequestParam(name = "month") Integer month,
+                                                                    @AuthenticationPrincipal CustomUserDetails userDetails) {
+        List<CostOutputDTO> costs = costService.getAllCostByYearMonth(year, month, userDetails.getId());
 
         return ResponseEntity.ok(costs);
     }
 
     @PostMapping
-    public ResponseEntity<CostSummaryOutputDTO> create(@RequestBody CreateCostInputDTO createCostInputDTO) {
-        CostSummaryOutputDTO costOutputDTO = costService.create(createCostInputDTO);
+    public ResponseEntity<CostSummaryOutputDTO> create(
+            @RequestBody CreateCostInputDTO createCostInputDTO,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        CostSummaryOutputDTO costOutputDTO = costService.create(createCostInputDTO, userDetails);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(costOutputDTO);
     }
 
     @DeleteMapping
-    public ResponseEntity<CostSummaryOutputDTO> delete(@RequestParam(name = "id") Long id) {
-        CostSummaryOutputDTO deletedCost = costService.delete(id);
+    public ResponseEntity<CostSummaryOutputDTO> delete(@RequestParam(name = "id") Long id,
+                                                       @AuthenticationPrincipal CustomUserDetails userDetails) {
+        CostSummaryOutputDTO deletedCost = costService.delete(id, userDetails.getId());
 
         return ResponseEntity.ok(deletedCost);
     }
 
     @PutMapping
-    public ResponseEntity<CostSummaryOutputDTO> update(@RequestParam(name = "id") Long id, @RequestBody UpdateCostInputDTO updateCostInputDTO) {
-        CostSummaryOutputDTO costUpdated = costService.update(id, updateCostInputDTO);
+    public ResponseEntity<CostSummaryOutputDTO> update(
+            @RequestParam(name = "id") Long id,
+            @RequestBody UpdateCostInputDTO updateCostInputDTO,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        CostSummaryOutputDTO costUpdated = costService.update(id, updateCostInputDTO, userDetails.getId());
 
         return ResponseEntity.ok(costUpdated);
     }
 
     @PostMapping("/import-recurrent")
-    public ResponseEntity<Void> importRecurrentCosts(@RequestBody ImportCostRecurrentInputDTO importCostRecurrentInputDTO) {
-        costService.importRecurrentCosts(importCostRecurrentInputDTO);
+    public ResponseEntity<Void> importRecurrentCosts(
+            @RequestBody ImportCostRecurrentInputDTO importCostRecurrentInputDTO,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        costService.importRecurrentCosts(importCostRecurrentInputDTO, userDetails.getId());
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -68,14 +79,16 @@ public class CostController {
         @RequestParam(name = "sourceReferenceYear") Integer sourceReferenceYear,
         @RequestParam(name = "sourceReferenceMonth") Integer sourceReferenceMonth,
         @RequestParam(name = "targetReferenceYear") Integer targetReferenceYear,
-        @RequestParam(name = "targetReferenceMonth") Integer targetReferenceMonth
+        @RequestParam(name = "targetReferenceMonth") Integer targetReferenceMonth,
+        @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        List<PreviewRecurrentCostsForImportOutPutDTO> previewRecurrentCostsForImport =  costService
+        List<PreviewRecurrentCostsForImportOutPutDTO> previewRecurrentCostsForImport = costService
                 .getPreviewRecurrentCostsForImport(
                         sourceReferenceYear,
                         sourceReferenceMonth,
                         targetReferenceYear,
-                        targetReferenceMonth
+                        targetReferenceMonth,
+                        userDetails.getId()
                 );
 
         return ResponseEntity.ok(previewRecurrentCostsForImport);

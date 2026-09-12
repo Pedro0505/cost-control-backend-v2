@@ -25,8 +25,9 @@ public interface EmploymentContractRepository extends JpaRepository<EmploymentCo
         )
         FROM EmploymentContract ec
         WHERE :referenceDate >= ec.initDate AND (ec.endDate IS NULL OR :referenceDate <= ec.endDate)
+        AND ec.user.id = :userId
     """)
-    Optional<ContractSummaryDTO> findOpenedEmploymentContract(@Param("referenceDate") LocalDate referenceDate);
+    Optional<ContractSummaryDTO> findOpenedEmploymentContract(@Param("referenceDate") LocalDate referenceDate, @Param("userId") Long userId);
 
     @Query("""
         SELECT new pedro.cost.control.domain.contract.dtos.EmploymentContractOutputDTO(
@@ -41,8 +42,9 @@ public interface EmploymentContractRepository extends JpaRepository<EmploymentCo
         FROM EmploymentContract ec
         LEFT JOIN EmploymentContractPj pj ON pj.id = ec.id
         LEFT JOIN EmploymentContractClt clt ON clt.id = ec.id
+        WHERE ec.user.id = :userId
     """)
-    Page<EmploymentContractOutputDTO> getAllContractsPaged(PageRequest pageable);
+    Page<EmploymentContractOutputDTO> getAllContractsPaged(PageRequest pageable, @Param("userId") Long userId);
 
     @Query("""
         SELECT ec
@@ -52,16 +54,19 @@ public interface EmploymentContractRepository extends JpaRepository<EmploymentCo
             :initDate BETWEEN ec.initDate AND COALESCE(ec.endDate, FUNCTION('LAST_DAY', ec.initDate))
             OR :endDate BETWEEN ec.initDate AND COALESCE(ec.endDate, FUNCTION('LAST_DAY', ec.initDate))
         )
+        AND ec.user.id = :userId
     """)
     Optional<EmploymentContract> findContractPjOverlap(
             @Param("initDate") LocalDate initDate,
-            @Param("endDate") LocalDate endDate
+            @Param("endDate") LocalDate endDate,
+            @Param("userId") Long userId
     );
 
     @Query("""
         SELECT ec
         FROM EmploymentContract ec
         WHERE ec.endDate IS NULL
+        AND ec.user.id = :userId
     """)
-    Optional<EmploymentContract> findEmploymentContractOpened();
+    Optional<EmploymentContract> findEmploymentContractOpened(@Param("userId") Long userId);
 }

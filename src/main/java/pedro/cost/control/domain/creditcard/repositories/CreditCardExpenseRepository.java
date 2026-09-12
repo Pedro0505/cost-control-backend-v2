@@ -25,20 +25,31 @@ public interface CreditCardExpenseRepository extends JpaRepository<CreditCardExp
         DELETE FROM CreditCardExpense cre
         WHERE cre.invoiceReferenceYear = :year
         AND cre.invoiceReferenceMonth = :month
+        AND cre.user.id = :userId
     """)
-    void deleteAllByInvoiceYearAndMonth(@Param("year") Integer year, @Param("month") Integer month);
+    void deleteAllByInvoiceYearAndMonth(
+            @Param("year") Integer year,
+            @Param("month") Integer month,
+            @Param("userId") Long userId
+    );
 
     @Query("""
         SELECT cce FROM CreditCardExpense cce
         WHERE cce.invoiceReferenceYear = :year AND cce.invoiceReferenceMonth = :month
+        AND cce.user.id = :userId
     """)
-    List<CreditCardExpense> findAllByYearAndMonthInvoice(@Param("year") Integer year, @Param("month") Integer month);
+    List<CreditCardExpense> findAllByYearAndMonthInvoice(
+            @Param("year") Integer year,
+            @Param("month") Integer month,
+            @Param("userId") Long userId
+    );
 
     @Query("""
         SELECT DISTINCT new pedro.cost.control.common.YearMonthSummary(cce.invoiceReferenceYear, cce.invoiceReferenceMonth)
         FROM CreditCardExpense cce
+        WHERE cce.user.id = :userId
     """)
-    List<YearMonthSummary> findAllDistinctAddedInvoices();
+    List<YearMonthSummary> findAllDistinctAddedInvoices(@Param("userId") Long userId);
 
     @Query("""
         SELECT new pedro.cost.control.domain.creditcard.dtos.InvoiceSummaryByYearMonth(
@@ -56,6 +67,7 @@ public interface CreditCardExpenseRepository extends JpaRepository<CreditCardExp
                 c.invoiceReferenceYear < :endYear
                 OR (c.invoiceReferenceYear = :endYear AND c.invoiceReferenceMonth <= :endMonth)
               )
+          AND c.user.id = :userId
         GROUP BY c.invoiceReferenceYear, c.invoiceReferenceMonth
         ORDER BY c.invoiceReferenceYear, c.invoiceReferenceMonth
     """)
@@ -63,7 +75,8 @@ public interface CreditCardExpenseRepository extends JpaRepository<CreditCardExp
             @Param("startYear") Integer startYear,
             @Param("startMonth") Integer startMonth,
             @Param("endYear") Integer endYear,
-            @Param("endMonth") Integer endMonth
+            @Param("endMonth") Integer endMonth,
+            @Param("userId") Long userId
     );
 
     @Query("""
@@ -81,6 +94,7 @@ public interface CreditCardExpenseRepository extends JpaRepository<CreditCardExp
                 c.invoiceReferenceYear < :endYear
                 OR (c.invoiceReferenceYear = :endYear AND c.invoiceReferenceMonth <= :endMonth)
               )
+        AND c.user.id = :userId
         GROUP BY c.normalizedDescription
         ORDER BY SUM(c.amount) DESC
     """)
@@ -89,6 +103,7 @@ public interface CreditCardExpenseRepository extends JpaRepository<CreditCardExp
             @Param("startMonth") Integer startMonth,
             @Param("endYear") Integer endYear,
             @Param("endMonth") Integer endMonth,
+            @Param("userId") Long userId,
             PageRequest pageable
     );
 
@@ -109,6 +124,7 @@ public interface CreditCardExpenseRepository extends JpaRepository<CreditCardExp
                 c.invoiceReferenceYear < :endYear
                 OR (c.invoiceReferenceYear = :endYear AND c.invoiceReferenceMonth <= :endMonth)
             )
+            AND c.user.id = :userId
         GROUP BY
             c.normalizedDescription,
             c.invoiceReferenceYear,
@@ -122,7 +138,8 @@ public interface CreditCardExpenseRepository extends JpaRepository<CreditCardExp
             @Param("startYear") Integer startYear,
             @Param("startMonth") Integer startMonth,
             @Param("endYear") Integer endYear,
-            @Param("endMonth") Integer endMonth
+            @Param("endMonth") Integer endMonth,
+            @Param("userId") Long userId
     );
 
     @Query("""
@@ -144,6 +161,7 @@ public interface CreditCardExpenseRepository extends JpaRepository<CreditCardExp
         FROM CreditCardExpense e
         WHERE e.invoiceReferenceMonth = :month
         AND e.invoiceReferenceYear = :year
+        AND e.user.id = :userId
         GROUP BY
             e.invoiceReferenceMonth,
             e.invoiceReferenceYear,
@@ -152,7 +170,8 @@ public interface CreditCardExpenseRepository extends JpaRepository<CreditCardExp
     """)
     List<CreditCardExpensePercentageResponse> findPercentageByMonthAndYear(
             @Param("month") Integer month,
-            @Param("year") Integer year
+            @Param("year") Integer year,
+            @Param("userId") Long userId
     );
 
     @Query("""
@@ -187,12 +206,20 @@ public interface CreditCardExpenseRepository extends JpaRepository<CreditCardExp
         FROM CreditCardExpense e
         WHERE e.invoiceReferenceMonth = :month
           AND e.invoiceReferenceYear = :year
+        AND e.user.id = :userId
         GROUP BY
             e.invoiceReferenceMonth,
             e.invoiceReferenceYear
     """)
     CreditCardInstallmentPercentageResponse findInstallmentPercentageByMonthAndYear(
             @Param("month") Integer month,
-            @Param("year") Integer year
+            @Param("year") Integer year,
+            @Param("userId") Long userId
     );
+
+    @Query("""
+        SELECT cce FROM CreditCardExpense cce
+        WHERE cce.user.id = :userId
+    """)
+    List<CreditCardExpense> findAllByUserId(@Param("userId") Long userId);
 }

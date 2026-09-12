@@ -13,8 +13,8 @@ import pedro.cost.control.domain.income.dtos.IncomeOutputDTO;
 import pedro.cost.control.domain.income.entities.Income;
 import pedro.cost.control.domain.income.factories.IncomeCreationContextFactory;
 import pedro.cost.control.domain.income.factories.IncomeFactory;
-import pedro.cost.control.domain.income.mapper.IncomeMapper;
 import pedro.cost.control.domain.income.repositories.IncomeRepository;
+import pedro.cost.control.security.CustomUserDetails;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -26,22 +26,21 @@ public class IncomeService {
     private final IncomeCreationContextFactory incomeCreationContextFactory;
     private final IncomeFactory incomeFactory;
     private final PjIncomeHandler pjIncomeHandler;
-    private final IncomeMapper incomeMapper;
 
     @Transactional
-    public void createIncome(IncomeInputCreateDTO dto) {
+    public void createIncome(IncomeInputCreateDTO dto, CustomUserDetails userDetails) {
 
-        IncomeCreationContext context = incomeCreationContextFactory.create(dto);
+        IncomeCreationContext context = incomeCreationContextFactory.create(dto, userDetails.getUser());
 
-        pjIncomeHandler.createPjMonthlyWorkToIncome(context.getInput(), context.getContractSummary());
+        pjIncomeHandler.createPjMonthlyWorkToIncome(context.getInput(), context.getContractSummary(), userDetails.getId());
 
-        Income income = incomeFactory.create(context);
+        Income income = incomeFactory.create(context, userDetails.getUser());
 
         save(income);
     }
 
-    public Income findById(Long id) {
-        Optional<Income> optionalIncome = incomeRepository.findById(id);
+    public Income findById(Long id, Long userId) {
+        Optional<Income> optionalIncome = incomeRepository.findIncomeByIdAndUserId(id, userId);
 
         if (optionalIncome.isEmpty()) {
             throw new NotFoundException("Renda não encontrada");
@@ -50,10 +49,10 @@ public class IncomeService {
         return optionalIncome.get();
     }
 
-    public void delete(Long id) {
-        Income incomeToDelete = findById(id);
+    public void delete(Long id, Long userId) {
+        Income incomeToDelete = findById(id, userId);
 
-        pjIncomeHandler.deletePjMonthlyWorkLinkedWithIncomeIfNecessary(incomeToDelete);
+        pjIncomeHandler.deletePjMonthlyWorkLinkedWithIncomeIfNecessary(incomeToDelete, userId);
 
         incomeRepository.delete(incomeToDelete);
     }
@@ -62,14 +61,14 @@ public class IncomeService {
         incomeRepository.save(income);
     }
 
-    public LegacyPageResponse<IncomeOutputDTO> getAllPageable(PageRequest pageable) {
-        Page<IncomeOutputDTO> pageResult = incomeRepository.findAll(pageable).map(incomeMapper::toDto);
+    public LegacyPageResponse<IncomeOutputDTO> getAllPageable(PageRequest pageable, Long userId) {
+        Page<IncomeOutputDTO> pageResult = incomeRepository.findAllByUserId(userId, pageable);
 
         return new LegacyPageResponse<>(pageResult);
     }
 
-    public BigDecimal getTotalIncomeByYearAndMonth(Integer year, Integer month) {
-        return incomeRepository.sumAmountByMonth(year, month)
+    public BigDecimal getTotalIncomeByYearAndMonth(Integer year, Integer month, Long userId) {
+        return incomeRepository.sumAmountByMonth(year, month, userId)
                 .orElseThrow(() -> new NotFoundException("Não foi encontradas entradas para o mês " + month + " e ano " + year));
     }
 }

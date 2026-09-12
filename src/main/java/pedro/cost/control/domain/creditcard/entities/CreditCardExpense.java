@@ -2,14 +2,18 @@ package pedro.cost.control.domain.creditcard.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import pedro.cost.control.domain.user.entities.User;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -46,4 +50,8 @@ public class CreditCardExpense {
 
     @Column(name = "is_installment", nullable = false)
     private boolean installment;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 }

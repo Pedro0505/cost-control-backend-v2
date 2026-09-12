@@ -16,9 +16,9 @@ public class CostCalculationService {
     private final CostCalculationStrategyResolver resolver;
     private final IncomeService incomeService;
 
-    public final BigDecimal calculateAmount(AmountCalculationContext amountCalculationContext) {
+    public final BigDecimal calculateAmount(AmountCalculationContext amountCalculationContext, Long userId) {
         BigDecimal totalAmountIncomeForPercentage = incomeService.getTotalIncomeByYearAndMonth(
-                amountCalculationContext.getReferenceYear(), amountCalculationContext.getReferenceMonth()
+                amountCalculationContext.getReferenceYear(), amountCalculationContext.getReferenceMonth(), userId
         );
 
         CostCalculationContext context = buildContext(amountCalculationContext, totalAmountIncomeForPercentage);

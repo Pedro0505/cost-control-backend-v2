@@ -15,14 +15,14 @@ import java.math.BigDecimal;
 public class CostUpdateAmountFactory {
     private final CostAmountResolver costAmountResolver;
 
-    public BigDecimal getUpdateAmount(Cost costUpdate, UpdateCostInputDTO updateCostInput) {
+    public BigDecimal getUpdateAmount(Cost costUpdate, UpdateCostInputDTO updateCostInput, Long userId) {
         MonthlyBalance monthlyBalance = costUpdate.getMonthlyBalance();
         Integer referenceYear = monthlyBalance.getReferenceYear();
         Integer referenceMonth = monthlyBalance.getReferenceMonth();
 
         AmountCalculationContext amountCalculationContext = buildContext(updateCostInput, referenceYear, referenceMonth);
 
-        return costAmountResolver.resolve(amountCalculationContext);
+        return costAmountResolver.resolve(amountCalculationContext, userId);
     }
 
     private static AmountCalculationContext buildContext(UpdateCostInputDTO updateCostInput, Integer referenceYear, Integer referenceMonth) {
