@@ -19,13 +19,14 @@ public class RecurrentCostImporterService {
     private final CostRepository costRepository;
     private final IncomeService incomeService;
 
-    public void importRecurrentCosts(ImportCostRecurrentInputDTO input, MonthlyBalance targetMonthlyBalance) {
+    public void importRecurrentCosts(ImportCostRecurrentInputDTO input, MonthlyBalance targetMonthlyBalance, Long userId) {
         List<Cost> costsToPersist = getRecalculatedCostFromTarget(
                 input.getSourceReferenceYear(),
                 input.getSourceReferenceMonth(),
                 input.getTargetReferenceYear(),
                 input.getTargetReferenceMonth(),
-                targetMonthlyBalance
+                targetMonthlyBalance,
+                userId
         );
 
         costRepository.saveAll(costsToPersist);
@@ -36,22 +37,23 @@ public class RecurrentCostImporterService {
             Integer sourceReferenceMonth,
             Integer targetReferenceYear,
             Integer targetReferenceMonth,
-            MonthlyBalance targetMonthlyBalance
+            MonthlyBalance targetMonthlyBalance,
+            Long userId
     ) {
-        List<Cost> sourceCosts = findSourceCosts(sourceReferenceYear, sourceReferenceMonth);
-        BigDecimal targetIncome = findTargetIncome(targetReferenceYear, targetReferenceMonth);
+        List<Cost> sourceCosts = findSourceCosts(sourceReferenceYear, sourceReferenceMonth, userId);
+        BigDecimal targetIncome = findTargetIncome(targetReferenceYear, targetReferenceMonth, userId);
 
         return sourceCosts.stream()
                 .map(cost -> cloneAndRecalculate(cost, targetMonthlyBalance, targetIncome))
                 .toList();
     }
 
-    private List<Cost> findSourceCosts(Integer referenceYear, Integer referenceMonth) {
-        return costRepository.findAllRecurrentCostByYearMonth(referenceYear, referenceMonth);
+    private List<Cost> findSourceCosts(Integer referenceYear, Integer referenceMonth, Long userId) {
+        return costRepository.findAllRecurrentCostByYearMonth(referenceYear, referenceMonth, userId);
     }
 
-    private BigDecimal findTargetIncome(Integer referenceYear, Integer referenceMonth) {
-        return incomeService.getTotalIncomeByYearAndMonth(referenceYear, referenceMonth);
+    private BigDecimal findTargetIncome(Integer referenceYear, Integer referenceMonth, Long userId) {
+        return incomeService.getTotalIncomeByYearAndMonth(referenceYear, referenceMonth, userId);
     }
 
     private Cost cloneAndRecalculate(Cost source, MonthlyBalance targetBalance, BigDecimal targetIncome) {
@@ -65,6 +67,7 @@ public class RecurrentCostImporterService {
                 .recurrent(source.getRecurrent())
                 .monthlyBalance(targetBalance)
                 .paid(source.getPaid())
+                .user(source.getUser())
                 .build();
     }
 

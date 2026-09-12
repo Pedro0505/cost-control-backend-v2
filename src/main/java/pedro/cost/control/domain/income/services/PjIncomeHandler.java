@@ -17,12 +17,12 @@ import java.util.Optional;
 public class PjIncomeHandler {
     private final PjMonthlyWorkService pjMonthlyWorkService;
 
-    public void deletePjMonthlyWorkLinkedWithIncomeIfNecessary(Income incomeToDelete) {
-        Optional<PjMonthlyWork> pjMonthlyWorkLinkedWithIncome = pjMonthlyWorkService.getPjMonthlyWorkLinkedWithIncomeId(incomeToDelete.getId());
+    public void deletePjMonthlyWorkLinkedWithIncomeIfNecessary(Income incomeToDelete, Long userId) {
+        Optional<PjMonthlyWork> pjMonthlyWorkLinkedWithIncome = pjMonthlyWorkService.getPjMonthlyWorkLinkedWithIncomeId(incomeToDelete.getId(), userId);
         pjMonthlyWorkLinkedWithIncome.ifPresent(pjMonthlyWorkService::delete);
     }
 
-    public void createPjMonthlyWorkToIncome(IncomeInputCreateDTO incomeInputCreateDTO, ContractSummaryDTO openedEmploymentContract) {
+    public void createPjMonthlyWorkToIncome(IncomeInputCreateDTO incomeInputCreateDTO, ContractSummaryDTO openedEmploymentContract, Long userId) {
         boolean isContractPj = openedEmploymentContract.getContractType().equals(ContractType.PJ.name());
         Integer businessDays = incomeInputCreateDTO.getBusinessDays();
 
@@ -31,7 +31,7 @@ public class PjIncomeHandler {
                 throw new BadRequestException("Rendas PJ devem ter os dias úteis preenchidos");
             }
 
-            pjMonthlyWorkService.createPjMonthlyWork(incomeInputCreateDTO.getReferenceDate(), businessDays);
+            pjMonthlyWorkService.createPjMonthlyWork(incomeInputCreateDTO.getReferenceDate(), businessDays, userId);
         }
     }
 }

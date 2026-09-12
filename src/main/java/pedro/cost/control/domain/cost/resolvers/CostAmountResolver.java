@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 public class CostAmountResolver {
     private final CostCalculationService costCalculationService;
 
-    public BigDecimal resolve(AmountCalculationContext amountCalculationContext) {
-        return costCalculationService.calculateAmount(amountCalculationContext);
+    public BigDecimal resolve(AmountCalculationContext amountCalculationContext, Long userId) {
+        return costCalculationService.calculateAmount(amountCalculationContext, userId);
     }
 }

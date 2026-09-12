@@ -15,6 +15,7 @@ public interface CreditCardExpenseMapper {
     @Mapping(target = "amount", source = "amount")
     @Mapping(target = "invoiceReferenceYear", source = "invoiceReferenceYear")
     @Mapping(target = "invoiceReferenceMonth", source = "invoiceReferenceMonth")
+    @Mapping(target = "installment", source = "isInstallment")
     CreditCardExpense toEntity(CostFileDiscriminationContext source);
 
     List<CreditCardExpense> toEntityList(List<CostFileDiscriminationContext> source);

@@ -20,14 +20,14 @@ public class PjMonthlyWorkService {
     private final EmploymentContractPjService employmentContractPjService;
 
     @Transactional
-    public void createPjMonthlyWork(LocalDate referenceDate, Integer businessDays) {
+    public void createPjMonthlyWork(LocalDate referenceDate, Integer businessDays, Long userId) {
         Integer referenceYear = referenceDate.getYear();
         Integer referenceMonth = referenceDate.getMonthValue();
 
-        validateOverlap(referenceYear, referenceMonth);
+        validateOverlap(referenceYear, referenceMonth, userId);
 
         EmploymentContract employmentContract  = employmentContractPjService.getEmploymentContractByYearAndMonth(
-                referenceYear, referenceMonth
+                referenceYear, referenceMonth, userId
         );
 
         PjMonthlyWork pjMonthlyWork = createPjMonthlyWorkObject(referenceYear, referenceMonth, businessDays, employmentContract);
@@ -39,8 +39,8 @@ public class PjMonthlyWorkService {
         pjMonthlyWorkRepository.save(pjMonthlyWork);
     }
 
-    public Optional<PjMonthlyWork> getPjMonthlyWorkLinkedWithIncomeId(Long incomeId) {
-        return pjMonthlyWorkRepository.findPjMonthlyWorkLinkedWithIncomeId(incomeId);
+    public Optional<PjMonthlyWork> getPjMonthlyWorkLinkedWithIncomeId(Long incomeId, Long userId) {
+        return pjMonthlyWorkRepository.findPjMonthlyWorkLinkedWithIncomeId(incomeId, userId);
     }
 
     public void delete(PjMonthlyWork pjMonthlyWork) {
@@ -60,8 +60,8 @@ public class PjMonthlyWorkService {
         return pjMonthlyWork;
     }
 
-    private void validateOverlap(Integer referenceYear, Integer referenceMonth) {
-        Optional<PjMonthlyWork> optionalPjMonthlyWork = pjMonthlyWorkRepository.findByYearAndMonth(referenceYear, referenceMonth);
+    private void validateOverlap(Integer referenceYear, Integer referenceMonth, Long userId) {
+        Optional<PjMonthlyWork> optionalPjMonthlyWork = pjMonthlyWorkRepository.findByYearAndMonth(referenceYear, referenceMonth, userId);
 
         if (optionalPjMonthlyWork.isPresent()) {
             throw new ConflictException("Já existe horas cadastradas para esse mês e ano");

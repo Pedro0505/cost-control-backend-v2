@@ -70,6 +70,7 @@ public class CreditCardExpensesHandler {
 
         List<CreditCardExpensesDetailsOutputDTO> details = entry.getValue().stream()
                 .map(this::mapToDetails)
+                .sorted(Comparator.comparing(CreditCardExpensesDetailsOutputDTO::getAmount).reversed())
                 .toList();
 
         return CreditCardExpensesGroupedOutputDTO.builder()

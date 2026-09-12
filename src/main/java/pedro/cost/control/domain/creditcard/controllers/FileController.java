@@ -3,12 +3,14 @@ package pedro.cost.control.domain.creditcard.controllers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import pedro.cost.control.domain.creditcard.services.FileService;
+import pedro.cost.control.security.CustomUserDetails;
 
 @RestController
 @RequestMapping("/api/v2/file")
@@ -20,9 +22,10 @@ public class FileController {
     public ResponseEntity<Void> processa(
             @RequestParam MultipartFile file,
             @RequestParam(name = "invoiceReferenceYear") Integer invoiceReferenceYear,
-            @RequestParam(name = "invoiceReferenceMonth") Integer invoiceReferenceMonth
+            @RequestParam(name = "invoiceReferenceMonth") Integer invoiceReferenceMonth,
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        fileService.uploadInvoiceFile(file, invoiceReferenceYear, invoiceReferenceMonth);
+        fileService.uploadInvoiceFile(file, invoiceReferenceYear, invoiceReferenceMonth, userDetails);
 
         return ResponseEntity.noContent().build();
     }

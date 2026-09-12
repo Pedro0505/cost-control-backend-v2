@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +17,7 @@ import pedro.cost.control.common.LegacyPageResponse;
 import pedro.cost.control.domain.income.dtos.IncomeInputCreateDTO;
 import pedro.cost.control.domain.income.dtos.IncomeOutputDTO;
 import pedro.cost.control.domain.income.services.IncomeService;
+import pedro.cost.control.security.CustomUserDetails;
 
 @RestController
 @RequestMapping("/api/v2/incomes")
@@ -24,23 +26,27 @@ public class IncomeController {
     private final IncomeService incomeService;
 
     @PostMapping
-    public ResponseEntity<Void> createIncome(@RequestBody IncomeInputCreateDTO incomeInputCreateDTO) {
-        incomeService.createIncome(incomeInputCreateDTO);
+    public ResponseEntity<Void> createIncome(
+            @RequestBody IncomeInputCreateDTO incomeInputCreateDTO,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        incomeService.createIncome(incomeInputCreateDTO, userDetails);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @GetMapping
-    public ResponseEntity<LegacyPageResponse<IncomeOutputDTO>> getAllPageable(@RequestParam Integer page, @RequestParam Integer size) {
+    public ResponseEntity<LegacyPageResponse<IncomeOutputDTO>> getAllPageable(
+            @RequestParam Integer page, @RequestParam Integer size, @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
         PageRequest pageable = PageRequest.of(page, size, Sort.by("referenceDate").descending());
-        LegacyPageResponse<IncomeOutputDTO> allPageable = incomeService.getAllPageable(pageable);
+        LegacyPageResponse<IncomeOutputDTO> allPageable = incomeService.getAllPageable(pageable, userDetails.getId());
 
         return ResponseEntity.ok(allPageable);
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> delete(@RequestParam Long id) {
-        incomeService.delete(id);
+    public ResponseEntity<Void> delete(@RequestParam Long id, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        incomeService.delete(id, userDetails.getId());
 
         return ResponseEntity.noContent().build();
     }

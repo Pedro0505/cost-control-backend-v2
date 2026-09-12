@@ -23,6 +23,7 @@ public class CostFileClusterService {
 
         fixedMappings.put(Pattern.compile("(?i).*amazon\\s*prime.*"), DescriptionNameEnum.ASSINATURAS.getValue());
         fixedMappings.put(Pattern.compile("(?i).*prime\\s*aluguel.*"), DescriptionNameEnum.ASSINATURAS.getValue());
+        fixedMappings.put(Pattern.compile("(?i).*amazon\\s+ad\\s+free.*"), DescriptionNameEnum.ASSINATURAS.getValue());
         fixedMappings.put(ASSINATURAS_GOOGLE, DescriptionNameEnum.ASSINATURAS.getValue());
         fixedMappings.put(Pattern.compile("(?i).*google\\s*(one|youtube|play).*"), DescriptionNameEnum.ASSINATURAS.getValue());
         fixedMappings.put(Pattern.compile("(?i).*hbomax.*"), DescriptionNameEnum.ASSINATURAS.getValue());

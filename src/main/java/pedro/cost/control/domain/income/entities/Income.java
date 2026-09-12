@@ -2,6 +2,7 @@ package pedro.cost.control.domain.income.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -14,6 +15,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pedro.cost.control.domain.balance.entities.MonthlyBalance;
 import pedro.cost.control.domain.contract.entities.EmploymentContract;
+import pedro.cost.control.domain.user.entities.User;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -47,4 +49,8 @@ public class Income {
     @ManyToOne
     @JoinColumn(name = "monthly_balance_id", nullable = false)
     private MonthlyBalance monthlyBalance;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 }

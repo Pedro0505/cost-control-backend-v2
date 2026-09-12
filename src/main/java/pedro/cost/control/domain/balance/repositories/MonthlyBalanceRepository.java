@@ -11,16 +11,23 @@ import java.util.Optional;
 
 @Repository
 public interface MonthlyBalanceRepository extends JpaRepository<MonthlyBalance, Long>  {
-    @Query(value = """
-                SELECT mb.id, mb.reference_month, mb.reference_year FROM monthly_balance mb
-                WHERE mb.reference_year = :year AND mb.reference_month = :month
-            """, nativeQuery = true
-    )
-    Optional<MonthlyBalance> findMonthlyBalanceByYearAndMonth(@Param("year") Integer year, @Param("month") Integer month);
+    @Query("""
+        SELECT mb
+        FROM MonthlyBalance mb
+        WHERE mb.referenceYear = :year
+        AND mb.referenceMonth = :month
+        AND mb.user.id = :userId
+    """)
+    Optional<MonthlyBalance> findMonthlyBalanceByYearAndMonth(
+            @Param("year") Integer year,
+            @Param("month") Integer month,
+            @Param("userId") Long userId
+    );
 
     @Query("""
         SELECT DISTINCT mb FROM MonthlyBalance mb
         JOIN Income i ON i.monthlyBalance.id = mb.id
+        WHERE mb.user.id = :userId
     """)
-    List<MonthlyBalance> findAllMonthlyBalanceWithIncomeRelation();
+    List<MonthlyBalance> findAllMonthlyBalanceWithIncomeRelation(@Param("userId") Long userId);
 }

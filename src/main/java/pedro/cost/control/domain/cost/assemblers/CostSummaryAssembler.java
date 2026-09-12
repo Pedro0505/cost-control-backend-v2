@@ -20,14 +20,14 @@ public class CostSummaryAssembler {
     private final CostRepository costRepository;
     private final CostMapper costMapper;
 
-    public CostSummaryOutputDTO assemble(Cost cost) {
+    public CostSummaryOutputDTO assemble(Cost cost, Long userId) {
         Integer year = cost.getMonthlyBalance().getReferenceYear();
         Integer month = cost.getMonthlyBalance().getReferenceMonth();
 
         CostSummaryOutputDTO dto = costMapper.costToCostSummaryOutputDTO(cost);
 
-        List<CostOutputDTO> costs = costRepository.findAllCostByYearMonth(year, month);
-        BalanceSummaryOutputDTO summary = financialBalanceService.calculateFinancialSummaryByMonth(costs, year, month);
+        List<CostOutputDTO> costs = costRepository.findAllCostByYearMonth(year, month, userId);
+        BalanceSummaryOutputDTO summary = financialBalanceService.calculateFinancialSummaryByMonth(costs, year, month, userId);
 
         dto.setMoneySummary(summary.getMoneySummary());
 

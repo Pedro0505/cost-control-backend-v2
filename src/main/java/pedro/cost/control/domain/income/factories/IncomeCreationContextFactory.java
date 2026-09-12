@@ -11,6 +11,7 @@ import pedro.cost.control.domain.contract.services.EmploymentContractService;
 import pedro.cost.control.domain.income.contexts.IncomeCreationContext;
 import pedro.cost.control.domain.income.dtos.IncomeInputCreateDTO;
 import pedro.cost.control.domain.income.resolvers.IncomeAmountResolver;
+import pedro.cost.control.domain.user.entities.User;
 
 import java.math.BigDecimal;
 
@@ -21,14 +22,15 @@ public class IncomeCreationContextFactory {
     private final MonthlyBalanceService monthlyBalanceService;
     private final IncomeAmountResolver incomeAmountResolver;
 
-    public IncomeCreationContext create(IncomeInputCreateDTO dto) {
-        ContractSummaryDTO contract = employmentContractService.getOpenedEmploymentContract(dto.getReferenceDate());
+    public IncomeCreationContext create(IncomeInputCreateDTO dto, User user) {
+        ContractSummaryDTO contract = employmentContractService.getOpenedEmploymentContract(dto.getReferenceDate(), user.getId());
 
         checkIncomeCreateCorrespondsTheCurrentContract(dto.getContractType(), contract);
 
         MonthlyBalance balance = monthlyBalanceService.getOrCreateMonthlyBalance(
                 dto.getReferenceDate().getYear(),
-                dto.getReferenceDate().getMonthValue()
+                dto.getReferenceDate().getMonthValue(),
+                user
         );
 
         BigDecimal amount = incomeAmountResolver.resolve(dto, contract);

@@ -14,9 +14,9 @@ public class CashFlowService {
     private final CostService costService;
     private final FinancialBalanceService financialBalanceService;
 
-    public BalanceSummaryOutputDTO getFinancialSummaryByMonth(Integer year, Integer month) {
-        List<CostOutputDTO> costs = costService.getAllCostByYearMonth(year, month);
+    public BalanceSummaryOutputDTO getFinancialSummaryByMonth(Integer year, Integer month, Long userId) {
+        List<CostOutputDTO> costs = costService.getAllCostByYearMonth(year, month, userId);
 
-        return financialBalanceService.calculateFinancialSummaryByMonth(costs, year, month);
+        return financialBalanceService.calculateFinancialSummaryByMonth(costs, year, month, userId);
     }
 }

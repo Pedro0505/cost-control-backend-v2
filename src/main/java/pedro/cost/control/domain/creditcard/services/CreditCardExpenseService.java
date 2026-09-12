@@ -31,24 +31,26 @@ public class CreditCardExpenseService {
         creditCardExpenseRepository.saveAll(creditCardExpense);
     }
 
-    public void deleteAllByYearAndMonth(Integer year, Integer month) {
-        creditCardExpenseRepository.deleteAllByInvoiceYearAndMonth(year, month);
+    public void deleteAllByYearAndMonth(Integer year, Integer month, Long userId) {
+        creditCardExpenseRepository.deleteAllByInvoiceYearAndMonth(year, month, userId);
     }
 
-    public List<CreditCardExpense> getAllByYearAndMonthInvoice(Integer year, Integer month) {
-        return creditCardExpenseRepository.findAllByYearAndMonthInvoice(year, month);
+    public List<CreditCardExpense> getAllByYearAndMonthInvoice(Integer year, Integer month, Long userId) {
+        return creditCardExpenseRepository.findAllByYearAndMonthInvoice(year, month, userId);
     }
 
     public List<CreditCardExpensesGroupedOutputDTO> getGroupedExpensesByEnterpriseByInvoiceYearAndMonth(
-            Integer invoiceYear, Integer invoiceMonth
+            Integer invoiceYear, Integer invoiceMonth, Long userId
     ) {
-        List<CreditCardExpense> creditCardExpenses = getAllByYearAndMonthInvoice(invoiceYear, invoiceMonth);
+        List<CreditCardExpense> creditCardExpenses = getAllByYearAndMonthInvoice(invoiceYear, invoiceMonth, userId);
 
         return creditCardExpensesHandler.getGroupedExpensesByEnterprise(creditCardExpenses);
     }
 
-    public List<AvailableCreditCardDiscriminationYearMonth> getAvailableCreditCardDiscriminationYearMonths() {
-        List<YearMonthSummary> monthlyBalanceWithIncomeRelation = creditCardExpenseRepository.findAllDistinctAddedInvoices();
+    public List<AvailableCreditCardDiscriminationYearMonth> getAvailableCreditCardDiscriminationYearMonths(Long userId) {
+        List<YearMonthSummary> monthlyBalanceWithIncomeRelation = creditCardExpenseRepository.findAllDistinctAddedInvoices(
+                userId
+        );
 
         return monthlyBalanceWithIncomeRelation
                 .stream()
@@ -67,8 +69,8 @@ public class CreditCardExpenseService {
                 .toList();
     }
 
-    public void reprocessingCreditCardExpensesDescriptions() {
-        List<CreditCardExpense> creditCardExpenses = creditCardExpenseRepository.findAll();
+    public void reprocessingCreditCardExpensesDescriptions(Long userId) {
+        List<CreditCardExpense> creditCardExpenses = creditCardExpenseRepository.findAllByUserId(userId);
 
         List<CreditCardExpense> updatedCreditCardExpenses = creditCardExpensesHandler.updateCreditCardExpenseDescriptions(creditCardExpenses);
 
@@ -79,7 +81,8 @@ public class CreditCardExpenseService {
             Integer invoiceStartYear,
             Integer invoiceStartMonth,
             Integer invoiceEndYear,
-            Integer invoiceEndMonth
+            Integer invoiceEndMonth,
+            Long userId
     ) {
         YearMonth now = YearMonth.now();
         YearMonth defaultStart = now.minusMonths(12);
@@ -98,11 +101,12 @@ public class CreditCardExpenseService {
                 start.getYear(),
                 start.getMonthValue(),
                 end.getYear(),
-                end.getMonthValue()
+                end.getMonthValue(),
+                userId
         );
     }
 
-    public List<ExpenseEvolutionDTO> getTopEightExpensesEvolutionLastTwelveMonths() {
+    public List<ExpenseEvolutionDTO> getTopEightExpensesEvolutionLastTwelveMonths(Long userId) {
         YearMonth now = YearMonth.now();
         YearMonth start = now.minusMonths(11);
 
@@ -111,6 +115,7 @@ public class CreditCardExpenseService {
                                 start.getMonthValue(),
                                 now.getYear(),
                                 now.getMonthValue(),
+                                userId,
                                 PageRequest.of(0, 8)
                         ).stream()
                         .map(ExpenseByCategoryDTO::getCategory)
@@ -121,21 +126,24 @@ public class CreditCardExpenseService {
                 start.getYear(),
                 start.getMonthValue(),
                 now.getYear(),
-                now.getMonthValue()
+                now.getMonthValue(),
+                userId
         );
     }
 
     public List<CreditCardExpensePercentageResponse> getPercentageByMonthAndYear(
             Integer month,
-            Integer year
+            Integer year,
+            Long userId
     ) {
-        return creditCardExpenseRepository.findPercentageByMonthAndYear(month, year);
+        return creditCardExpenseRepository.findPercentageByMonthAndYear(month, year, userId);
     }
 
     public CreditCardInstallmentPercentageResponse getInstallmentPercentageByMonthAndYear(
             Integer month,
-            Integer year
+            Integer year,
+            Long userId
     ) {
-        return creditCardExpenseRepository.findInstallmentPercentageByMonthAndYear(month, year);
+        return creditCardExpenseRepository.findInstallmentPercentageByMonthAndYear(month, year, userId);
     }
 }
