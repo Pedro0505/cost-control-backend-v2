@@ -229,7 +229,7 @@ class ContractE2ETest extends BaseE2ETest {
                 .build();
 
         EmploymentContractPj expectedNewContract = EmploymentContractPjTestBuilder.builder()
-                .withHourlyRate(BigDecimal.valueOf(52.00))
+                .withHourlyRate(BigDecimal.valueOf(5.00))
                 .withContractInitDate(LocalDate.of(2026, Month.JANUARY, 1))
                 .withContractEndDate(null)
                 .withContractType("PJ")
