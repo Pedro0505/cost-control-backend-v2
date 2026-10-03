@@ -33,9 +33,17 @@ public interface IncomeRepository extends JpaRepository<Income, Long>  {
             i.amount,
             i.description,
             i.referenceDate,
-            i.employmentContract.contractType
-        ) FROM Income i
+            i.employmentContract.contractType,
+            pmw.businessDays
+        )
+        FROM Income i
+        JOIN TREAT(i.employmentContract AS EmploymentContractPj) pj
+        JOIN PjMonthlyWork pmw
+            ON pmw.employmentContract.id = pj.id
+            AND pmw.referenceMonth = MONTH(i.referenceDate)
+            AND pmw.referenceYear = YEAR(i.referenceDate)
         WHERE i.user.id = :userId
+        ORDER BY i.referenceDate DESC
     """)
     Page<IncomeOutputDTO> findAllByUserId(@Param("userId") Long userId, PageRequest pageable);
 

@@ -18,12 +18,14 @@ public class IncomeOutputDTO {
     private String description;
     private LocalDate referenceDate;
     private String contractType;
+    private Integer businessDays;
 
-    public IncomeOutputDTO(Long id, BigDecimal amount, String description, LocalDate referenceDate, String contractType) {
+    public IncomeOutputDTO(Long id, BigDecimal amount, String description, LocalDate referenceDate, String contractType, Integer businessDays) {
         this.id = id;
         this.amount = amount;
         this.description = description;
         this.referenceDate = referenceDate;
         this.contractType = contractType;
+        this.businessDays = businessDays;
     }
 }
