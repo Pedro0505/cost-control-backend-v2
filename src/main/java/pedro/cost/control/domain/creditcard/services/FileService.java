@@ -37,7 +37,7 @@ public class FileService {
             List<CostFileDiscriminationContext> fileContent = reader.read(file);
 
             List<CostFileDiscriminationContext> normalized = creditCardExpensesHandler.getNormalizedExpensesDescriptions(
-                    fileContent, invoiceReferenceYear, invoiceReferenceMonth
+                    fileContent, invoiceReferenceYear, invoiceReferenceMonth, userDetails.getId()
             );
 
             List<CreditCardExpense> expenses = creditCardExpenseMapper.toEntityList(normalized);

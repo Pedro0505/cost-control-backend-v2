@@ -154,6 +154,8 @@ public interface CreditCardExpenseRepository extends JpaRepository<CreditCardExp
                     FROM CreditCardExpense e2
                     WHERE e2.invoiceReferenceMonth = :month
                     AND e2.invoiceReferenceYear = :year
+                    AND e2.user.id = :userId
+                    AND e2.normalizedDescription IS NOT NULL
                 )
                 AS BigDecimal
             )
@@ -162,6 +164,7 @@ public interface CreditCardExpenseRepository extends JpaRepository<CreditCardExp
         WHERE e.invoiceReferenceMonth = :month
         AND e.invoiceReferenceYear = :year
         AND e.user.id = :userId
+        AND e.normalizedDescription IS NOT NULL
         GROUP BY
             e.invoiceReferenceMonth,
             e.invoiceReferenceYear,
@@ -207,6 +210,7 @@ public interface CreditCardExpenseRepository extends JpaRepository<CreditCardExp
         WHERE e.invoiceReferenceMonth = :month
           AND e.invoiceReferenceYear = :year
         AND e.user.id = :userId
+        AND e.normalizedDescription IS NOT NULL
         GROUP BY
             e.invoiceReferenceMonth,
             e.invoiceReferenceYear

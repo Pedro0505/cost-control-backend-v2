@@ -17,19 +17,21 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class CreditCardExpensesHandler {
-    private final CostFileClusterService costFileClusterService;
+    private final DescriptionMappingService descriptionMappingService;
 
     public List<CostFileDiscriminationContext> getNormalizedExpensesDescriptions(
             List<CostFileDiscriminationContext> inputList,
             Integer invoiceReferenceYear,
-            Integer invoiceReferenceMonth
+            Integer invoiceReferenceMonth,
+            Long userId
     ) {
+        DescriptionNormalizer normalizer = descriptionMappingService.buildNormalizer(userId);
 
         return inputList.stream()
                 .map(e -> CostFileDiscriminationContext.builder()
                         .amount(e.getAmount())
                         .date(e.getDate())
-                        .description(costFileClusterService.normalizeDescription(e.getRawDescription()))
+                        .description(normalizer.normalize(e.getRawDescription()))
                         .isInstallment(defineIfIsInstallment(e.getRawDescription()))
                         .rawDescription(e.getRawDescription())
                         .invoiceReferenceYear(invoiceReferenceYear)
@@ -44,6 +46,7 @@ public class CreditCardExpensesHandler {
             List<CreditCardExpense> inputList
     ) {
         return inputList.stream()
+                .filter(e -> e.getNormalizedDescription() != null)
                 .collect(Collectors.groupingBy(CreditCardExpense::getNormalizedDescription))
                 .entrySet()
                 .stream()
@@ -52,9 +55,11 @@ public class CreditCardExpensesHandler {
                 .toList();
     }
 
-    public List<CreditCardExpense> updateCreditCardExpenseDescriptions(List<CreditCardExpense> creditCardExpenses) {
+    public List<CreditCardExpense> updateCreditCardExpenseDescriptions(List<CreditCardExpense> creditCardExpenses, Long userId) {
+        DescriptionNormalizer normalizer = descriptionMappingService.buildNormalizer(userId);
+
         creditCardExpenses.forEach(e -> {
-                e.setNormalizedDescription(costFileClusterService.normalizeDescription(e.getRawDescription()));
+                e.setNormalizedDescription(normalizer.normalize(e.getRawDescription()));
                 e.setInstallment(defineIfIsInstallment(e.getRawDescription()));
             }
         );

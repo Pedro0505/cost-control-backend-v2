@@ -72,7 +72,7 @@ public class CreditCardExpenseService {
     public void reprocessingCreditCardExpensesDescriptions(Long userId) {
         List<CreditCardExpense> creditCardExpenses = creditCardExpenseRepository.findAllByUserId(userId);
 
-        List<CreditCardExpense> updatedCreditCardExpenses = creditCardExpensesHandler.updateCreditCardExpenseDescriptions(creditCardExpenses);
+        List<CreditCardExpense> updatedCreditCardExpenses = creditCardExpensesHandler.updateCreditCardExpenseDescriptions(creditCardExpenses, userId);
 
         creditCardExpenseRepository.saveAll(updatedCreditCardExpenses);
     }

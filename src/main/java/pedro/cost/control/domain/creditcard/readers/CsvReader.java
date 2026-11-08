@@ -37,13 +37,7 @@ public class CsvReader implements ReadFilesImplementations {
 
                 dto.setDate(LocalDate.parse(csvRecord.get(0)));
                 dto.setRawDescription(csvRecord.get(1));
-                String amount = csvRecord.get(2)
-                        .replace("\"", "")
-                        .replace(" ", "")
-                        .replace(".", "")
-                        .replace(",", ".");
-
-                dto.setAmount(Double.parseDouble(amount));
+                dto.setAmount(parseAmount(csvRecord.get(2)));
 
                 result.add(dto);
             }
@@ -53,6 +47,21 @@ public class CsvReader implements ReadFilesImplementations {
         } catch (Exception e) {
             throw new BadRequestException("Erro ao ler arquivo");
         }
+    }
+
+    static double parseAmount(String raw) {
+        String value = raw.replace("\"", "").replace(" ", "").trim();
+
+        int lastComma = value.lastIndexOf(',');
+        int lastDot = value.lastIndexOf('.');
+
+        if (lastComma > lastDot) {
+            value = value.replace(".", "").replace(",", ".");
+        } else if (lastDot > lastComma) {
+            value = value.replace(",", "");
+        }
+
+        return Double.parseDouble(value);
     }
 
     @Override
