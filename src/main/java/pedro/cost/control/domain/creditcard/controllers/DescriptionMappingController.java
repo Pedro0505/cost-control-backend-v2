@@ -22,13 +22,6 @@ import pedro.cost.control.security.CustomUserDetails;
 
 import java.util.List;
 
-/**
- * Mapeamentos regex → descrição normalizada, avaliados em ordem de posição
- * (a primeira regra que casar vence).
- * <p>
- * Alterar mapeamentos não muda lançamentos já salvos: depois de editar, chame
- * PUT /api/v2/credit-card-expenses/reprocessing-descriptions.
- */
 @RestController
 @RequestMapping("/api/v2/description-mappings")
 @RequiredArgsConstructor
@@ -76,7 +69,6 @@ public class DescriptionMappingController {
         return ResponseEntity.noContent().build();
     }
 
-    /** Redefine a ordem inteira de uma vez. Corpo: {"ids": [5, 2, 9, ...]} com todos os ids. */
     @PutMapping("/order")
     public ResponseEntity<List<DescriptionMappingOutputDTO>> reorder(
             @RequestBody DescriptionMappingReorderInputDTO dto,
@@ -85,14 +77,12 @@ public class DescriptionMappingController {
         return ResponseEntity.ok(descriptionMappingService.reorder(dto, userDetails.getId()));
     }
 
-    /** Carrega as regras que antes eram fixas no código (só se o usuário ainda não tiver nenhuma). */
     @PostMapping("/defaults")
     public ResponseEntity<List<DescriptionMappingOutputDTO>> loadDefaults(@AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(descriptionMappingService.loadDefaults(userDetails.getUser()));
     }
 
-    /** Mostra como uma descrição seria normalizada hoje e qual regra (posição) casou. */
     @GetMapping("/preview")
     public ResponseEntity<DescriptionMappingPreviewOutputDTO> preview(
             @RequestParam String description,

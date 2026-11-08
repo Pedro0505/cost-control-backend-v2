@@ -20,11 +20,6 @@ public interface DescriptionMappingRepository extends JpaRepository<DescriptionM
     """)
     List<DescriptionMapping> findAllByUserIdOrdered(@Param("userId") Long userId);
 
-    /**
-     * Mesma consulta, mas travando as linhas para escrita: usada antes de qualquer
-     * alteração de ordem, para que duas requisições simultâneas do mesmo usuário
-     * não calculem posições a partir do mesmo estado.
-     */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""
         SELECT dm FROM DescriptionMapping dm

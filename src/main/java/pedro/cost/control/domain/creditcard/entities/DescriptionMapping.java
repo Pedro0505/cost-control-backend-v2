@@ -20,14 +20,6 @@ import lombok.Setter;
 import pedro.cost.control.domain.creditcard.emuns.DescriptionMappingType;
 import pedro.cost.control.domain.user.entities.User;
 
-/**
- * Regra de normalização de descrição de fatura.
- * <p>
- * As regras de um usuário são avaliadas em ordem crescente de {@code position}
- * e a primeira que casar vence. A constraint única (user_id, position) garante
- * que nunca existam duas regras na mesma posição, ou seja, a ordem é sempre
- * determinística.
- */
 @Builder
 @Getter
 @Setter
@@ -50,7 +42,6 @@ public class DescriptionMapping {
     @Column(nullable = false, length = 500)
     private String pattern;
 
-    /** Valor normalizado. Obrigatório para CLASSIFY, nulo para IGNORE. */
     @Column(name = "normalized_value")
     private String value;
 
@@ -58,7 +49,6 @@ public class DescriptionMapping {
     @Column(nullable = false, length = 20)
     private DescriptionMappingType type;
 
-    /** Posição 1-based. Quanto menor, maior a prioridade. */
     @Column(name = "sort_position", nullable = false)
     private Integer position;
 

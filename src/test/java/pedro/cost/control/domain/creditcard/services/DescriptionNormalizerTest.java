@@ -84,10 +84,6 @@ class DescriptionNormalizerTest {
         assertEquals("Compras Online", normalizer.normalize("KABUM - Parcela 2/10"));
     }
 
-    /**
-     * Garante que carregar os defaults reproduz exatamente o comportamento da
-     * classe fixa que foi removida, inclusive nos casos em que a ordem decide.
-     */
     @ParameterizedTest
     @CsvSource(delimiter = '|', nullValues = "NULL", value = {
             "Pagamento recebido|NULL",
